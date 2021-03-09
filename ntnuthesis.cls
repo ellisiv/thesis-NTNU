@@ -8,7 +8,7 @@
 
 %% IDENTIFICATION
 
-\xdef\ntnuthesisdate{2019/07/18}
+\xdef\ntnuthesisdate{2021/07/13}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{ntnuthesis}
  [\ntnuthesisdate\space
@@ -137,7 +137,7 @@
 
 %% CLASS FILE LOADING
 
-\LoadClass[a4paper,11pt,openright,\paging]{report}
+\LoadClass[a4paper,12pt,openright,\paging]{report}
 
 %% PACKAGE LOADING
 
@@ -186,6 +186,12 @@
     \RequirePackage[noabbrev]{cleveref}
 \fi
 \RequirePackage[acronym]{glossaries}        % create a glossary and acronym list
+\RequirePackage{esvect}
+% Todo notes
+\RequirePackage[colorinlistoftodos]{todonotes}  %Todo-notes
+\setlength{\parskip}{1em}                   % Paragrapgh spacing
+\setlength{\parindent}{0em}
+
 
 %% CUSTOMISATION
 
