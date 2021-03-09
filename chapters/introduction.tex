@@ -1,0 +1,20 @@
+\chapter{Introduction}
+
+From an unstructured set of points, $V$, we want to find a closed surface that approaches the point set as closely as possible while also requiring some extent of smoothness. Such a method could be useful when the surface can not be directly observed, but only measured pointwise. An example of this could be modelling geological formations underground or ...
+
+From realistic samples the data would be susceptible to measurement errors and thus a model should be able to handle noisy point sets. However, for the resulting surface to make any sense, the points should not be arbitrarily distributed in the domain, but follow some pattern resembling a surface.
+
+There are several approaches to construct methods solving this problem. *Use this section, or maybe more? To sum up and explain weaknesses and strengths of these approaches.
+
+In this thesis, we consider a PDE-driven approach to form a surface approximating the point set. Here, a surface, or a front, moves with a speed that is dependent on the distance to the point set in addition to the smoothness of the curve in that point. In contrast to a surface tracking procedure, where we start with an initial curve, discretise it and track the movement of the surface points, we will use an approach called a \textit{level set method}. This method describes the surface as an iso-curve of a higher dimensional functional defined on the entire domain. 
+
+The level set method would use more computational power compared to a front tracking method because it also considers the environment around the front/surface. Fortunately the computational costs also comes with increased flexibility. The front tracking approach suffers from some shortcomings when it comes to topological changes like collisions or splitting of surfaces. In addition, front tracking techniques would not be able to model  appearing or disappearing surfaces. Using an implicit definition of the surface using iso-curves of a higher dimensional functional, none if these issues would cause problems. 
+
+
+%More specific statements about what is studied
+
+%Statements indicate the need for more research/finding the gap
+
+%Giving the purpose/objectives for the main activity/findings
+ 
+%A "map" presenting how the text is presented
