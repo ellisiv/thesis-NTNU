@@ -189,9 +189,9 @@
 \RequirePackage{esvect}
 % Todo notes
 \RequirePackage[colorinlistoftodos]{todonotes}  %Todo-notes
+\RequirePackage{standalone}
 \setlength{\parskip}{1em}                   % Paragrapgh spacing
 \setlength{\parindent}{0em}
-\definecolor{NtnuBlue}{HTML}{00509E}
 
 % Tikz
 \RequirePackage{tikz}

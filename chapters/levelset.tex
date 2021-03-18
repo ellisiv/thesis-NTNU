@@ -13,10 +13,12 @@ context, we are not interested in the shape of the underlying higher dimensional
 function, but we are very much interested in the contours, which we call 
 \textit{iso-curves} or \textit{iso-contours}.
 
+To continue with the cartographic image, 
 The image of contours on a map is useful when understanding iso-curves in a
 level set setting also. Since the level set formulation is a way of describing
 closed curves, we need to know under which circumstances iso-contours forms 
 closed curves. As we are used to from maps, elevation curves are always closed.
+
 \todo{Fullfør. Kontinuitet?}
 
 Now that we have an intuition about iso-curves, we can discuss the principle
@@ -24,10 +26,16 @@ of a level set method. The goal is to represent a closed curve or surface,
 $\Gamma(t)$, that moves under the influence of a velocity field $\vv{v}$.
 The level set approach to this problem, as first presented in 1987 by 
 S.Osher and J. Sethian \cite{MR965860}, is to define a continuous function
-\uxt defined on a domain $\Omega$ containing $\Gamma|_{t=0}$.
-The domain $\Omega$ is split in two parts by the curve $\Gamma$, the interior
-$\mathfrak{I}$ and the exterior $\mathfrak{O}$ \todo{Figur}. The function \uxt
-must be constructed in a way that it satisfies the following properties
+\uxt defined on a domain $\mathcal{D}$ containing $\Gamma|_{t=0}$.
+The domain $\mathcal{D}$ is split in two parts by the curve $\Gamma$, the interior
+$\Omega$ and the exterior $\mathcal{D} \setminus \Omega$. 
+\begin{figure}
+    \centering
+    \includegraphics[width=.7\linewidth]{figures/tikz-figures/optimization-problem.pdf}
+    \caption{Level set representation of a curve $\Gamma$}
+    \label{fig:levelset-representation}
+\end{figure}
+The function \uxt must be constructed in a way that it satisfies the following properties
 \begin{align}
     u(\mathbf{x}, t) < 0 \qquad &\text{for } \mathbf{x} \in  \mathfrak{I}(t) \label{eq:interior}\\
     u(\mathbf{x}, t) = 0 \qquad &\text{for } \mathbf{x} \in  \Gamma(t) \label{eq:zero-iso-curve}\\
@@ -46,7 +54,7 @@ of $\Gamma$ when \uxt changes.
     \label{eq:general-u-flow}
 \end{equation}
 When $\Gamma$ flows in the velocity field $\vv{v}$, its time derivative has to be 
-defined as
+defined as \todo{dette er ikke helt bra:}
 \begin{equation}
     \Gamma_t = \vv{v}\cdot \vv{n}_{\Gamma} = v_n \vv{n}_{\Gamma}.
 \end{equation}
@@ -77,6 +85,7 @@ What to discuss around the method?
     \item increased complexity for solving PDE on entire domain. How to fix
     \item Topological flexibility. Situations that are now easily handled.
     \item Existence of viscosity solution (?????). In that case, I must read.
+    \item Existence and uniqueness
 \end{enumerate}
 
 \newpage
@@ -85,7 +94,15 @@ Going back to our problem, we have a set of points sampled from a surface and we
 reconstruct this surface as a smooth curve. Doing this using
 a level set method means that given an initial curve $\Gamma_0$, we want to find the 
 appropriate velocity field in \eqref{eq:general-level-set} such that the surface moves
-closer and closer to the point set. The problem also includes a certain smoothness to 
-the surface that needs to be preserved during this motion.
+closer and closer to the point set. In addition we want to ensure a smooth solution
+
+We then try to find the optimal velocity field to enforce this behavior. In order
+to do this, we formulate our problem as an optimization problem with respect to variations
+of the surface $\Gamma$. The optimal change in $\Gamma$ is then the optimal speed for 
+our curve. Extending that velocity to the entire domain gives us all the information we 
+need to construct our level set formulation.
+\todo{Discuss local property of the PDE}
+
+
 
 
