@@ -178,7 +178,7 @@
 ]{biblatex}                                 % for bibliography
 \RequirePackage{csvsimple}                  % tables from csv files
 \RequirePackage{booktabs}                   % better formatting of tables
-\RequirePackage{gnuplottex}                 % for generating gnuplots on the fly
+% \RequirePackage{gnuplottex}                 % for generating gnuplots on the fly
 \RequirePackage{hyperref}                   % interactive cross references
 \ifcapitalize
     \RequirePackage[capitalize,noabbrev]{cleveref}   % automatic cross references
@@ -191,7 +191,12 @@
 \RequirePackage[colorinlistoftodos]{todonotes}  %Todo-notes
 \setlength{\parskip}{1em}                   % Paragrapgh spacing
 \setlength{\parindent}{0em}
+\definecolor{NtnuBlue}{HTML}{00509E}
 
+% Tikz
+\RequirePackage{tikz}
+\usetikzlibrary{hobby} 
+\usetikzlibrary{backgrounds}
 
 %% CUSTOMISATION
 
