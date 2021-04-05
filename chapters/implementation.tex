@@ -1,0 +1,11 @@
+\chapter{Implementation}
+
+\section{Space Discretization}
+\subsection{A Finite Difference Scheme}
+
+
+\section{Re-initialization}
+
+Why is it not so smart to find distance function to the iso-contour and multiply with sign-function?
+In that case we must find the actual contourline explicitly. In the case of plt.contour, we only have 
+points or line segments, which means that we loose information. We linearise the contour and thus, we change the zero iso-contour which we do not want.
