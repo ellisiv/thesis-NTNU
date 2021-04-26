@@ -152,6 +152,7 @@
 \RequirePackage{enumitem}                   % customising list appearance
 \RequirePackage{graphicx}                   % including figures
 \RequirePackage{amsmath}                    % advanced math typesetting
+\RequirePackage{amsthm}                     % proofs and theorems
 \RequirePackage{comment}                    % comment large blocks of text
 \RequirePackage[                            % subfigures with captions within figures
     font=small,                             % and customisation of captions
@@ -181,6 +182,9 @@
 \RequirePackage{booktabs}                   % better formatting of tables
 % \RequirePackage{gnuplottex}                 % for generating gnuplots on the fly
 \RequirePackage{hyperref}                   % interactive cross references
+\newcommand\figref{Figure~\ref}
+\newcommand\secref{Section~\ref}
+\newcommand\chapref{Chapter~\ref}
 \ifcapitalize
     \RequirePackage[capitalize,noabbrev]{cleveref}   % automatic cross references
 \else
@@ -326,3 +330,21 @@
        \@starttoc{lol}%
        \endgroup%
        }%
+
+
+%Specific commands/shortcuts for thesis
+%Difference scheme
+\newcommand{\Uij}{\ensuremath{U_{i, j}^n}}
+\newcommand{\Uipj}{\ensuremath{U_{i+1, j}^n}}
+\newcommand{\Uinj}{\ensuremath{U_{i-1, j}^n}}
+\newcommand{\Uijp}{\ensuremath{U_{i, j+1}^n}}
+\newcommand{\Uijn}{\ensuremath{U_{i, j-1}^n}}
+\newcommand{\Uinjn}{\ensuremath{U_{i-1, j-1}^n}}
+\newcommand{\Uipjp}{\ensuremath{U_{i+1, j+1}^n}}
+\newcommand{\Uinjp}{\ensuremath{U_{i-1, j+1}^n}}
+\newcommand{\Uipjn}{\ensuremath{U_{i+1, j-1}^n}}
+
+\newcommand{\uxt}{$u(\mathbf{x}, t)$ }          % u(x, t)
+\newcommand{\domain}{$\mathcal{D}$ }            % Computational domain
+\newcommand{\velocityfield}{$\vv{v}$}           % velocity field
+\newcommand{\pointset}{$\mathcal{V}$}           % Our point set

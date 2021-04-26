@@ -1,6 +1,4 @@
 \chapter{Level Set Methods}
-\newcommand{\uxt}{$u(\mathbf{x}, t)$ }
-
 A level set formulation is an implicit representation of a closed curve or curves. 
 The curve is represented as a constant value of a higher dimensional function.
 A familiar example of such level curves are level curves on a map. Provided 
@@ -29,15 +27,16 @@ closed curves. As we are used to from maps, elevation curves are always closed.
 \todo{Fullfør. Kontinuitet?}
 \end{comment}
 
+\newpage
 \section{Level Set Definition}
 Now that we have an intuition about iso-curves, we can discuss the principle
 of a level set method. The goal is to represent a closed curve or surface, 
 $\Gamma(t)$, that moves under the influence of a velocity field $\vv{v}$.
 The level set approach to this problem, as first presented in 1987 by 
-S.Osher and J. Sethian \cite{MR965860}, is to define a continuous function
-\uxt defined on a domain $\mathcal{D}$ containing $\Gamma|_{t=0}$.
-The domain $\mathcal{D}$ is split in two parts by the curve $\Gamma$, the interior
-$\Omega$ and the exterior $\mathcal{D} \setminus \Omega$. 
+S.Osher and J. Sethian \cite{Osher-Sethian}, is to define a continuous function
+\uxt defined on a domain \domain containing $\Gamma|_{t=0}$.
+The domain \domain is split in two parts by the curve $\Gamma$, the interior
+$\Omega$ and the exterior \domain $\setminus \Omega$. 
 \begin{figure}
     \centering
     \includegraphics[width=.5\linewidth]{figures/tikz-figures/optimization-problem.pdf}
@@ -53,11 +52,11 @@ The function \uxt must be constructed in a way that it satisfies the following p
 Now, the curve $\Gamma$ can be described in terms of \uxt by being its 
 zero iso-contour. This means that if we can find the proper evolution of 
 \uxt we can implicitly track the motion of the curve $\Gamma$.
-What we now want is to find the right motion for \uxt to
-track the level curve $\Gamma$ flowing in the velocity field $\vv{v}$. Because
-we are only interested in the movement of the zero iso-curve of \uxt,
-differentiate \eqref{eq:zero-iso-curve} with respect to time to find the movement
-of $\Gamma$ when \uxt changes.
+Now, what we need is to find a model for the change in \uxt in order
+to simulate the level curve $\Gamma$ as a curve flowing in the velocity field $\vv{v}$.
+Because the zero iso-curve of \uxt is the only region of interest, we differentiate 
+\eqref{eq:zero-iso-curve} with respect to time in order to find how the function \uxt
+changes over time at the curve, $\Gamma$. 
 \begin{equation}
     (u(\mathbf{x}, t)_t + \nabla u(\mathbf{x}, t) \, \Gamma_t)_{\mathbf{x}\in \Gamma} = 0
     \label{eq:general-u-flow}
@@ -80,11 +79,26 @@ Inserting everything back into \eqref{eq:general-u-flow}, we get the equation
     \label{eq:general-level-set}
 \end{equation}
 
-Now we have derived a PDE that will move surface or a curve under the influence
-of a velocity field $\vv{v}$. However, there exists other methods to model
-a moving surface and thus we ask the question: How does the level set 
-formulation differ from other methods and in what situations could this be 
-a preferred choice?
+We constructed this partial differential equation to let the curve, $\Gamma$, flow in 
+our velocity field $\vv{v}$, and the motion of the rest of the higher dimensional curve
+\uxt is of less interest. We do see that we could have done exactly the same for 
+any other iso-value of \uxt by defining 
+\begin{align}
+    u(\mathbf{x}, t) < v \qquad &\text{for } \mathbf{x} \in  \Omega_v(t) \label{eq:v-interior}\\
+    u(\mathbf{x}, t) = v \qquad &\text{for } \mathbf{x} \in  \Gamma_v(t) \label{eq:v-iso-curve}\\
+    u(\mathbf{x}, t) > v \qquad &\text{for } \mathbf{x} \in  \mathcal{D} \setminus \Omega_v(t) \label{eq:v-exterior}.
+\end{align}
+and differentiated \eqref{eq:v-iso-curve} with respect to time. Because the right hand 
+side $v$ is only a constant, this would make no difference to the resulting PDE. Thus
+it is not only the zero iso-contour, but the entire function \uxt that is transported 
+in the velocity field $\vv{v}$.
+
+We have now found a way to model a curve influenced by a velocity field. Given that 
+a proper velocity field exists to transport an arbitrary initial curve, $\Gamma_0$,
+into the desired curve $\Gamma_f$ described in \todo{insert}, solving the PDE defined
+in \eqref{eq:general-level-set} will yield the desired solution. But there exists other
+methods for solving such problems \todo{more}. It is thus appropriate to ask whether 
+level set methods are really a good choice. 
 
 
 
@@ -98,25 +112,44 @@ What to discuss around the method?
 \end{enumerate}
 
 \newpage
-\section{Gradient flow}
+\section{Modelling a choices}
+Above, a general level set method is described. Then we had a zero level curve flowing in an unspecified velocity field, \velocityfield. We have shown that, given such velocity field, the PDE in \eqref{eq:general-level-set} will describe the motion of our curve influenced by the field, \velocityfield. Now, in order to obtain a model such as described in \chapref{chap:introduction}, we need to define the right velocity field for our situation.
+
+Our problem can be understood and formulated as a minimization problem. We can construct a fictive potential field or energy function which will give the surface an energy depending on the distance to the point set and curvature. Then we find the speed and direction for the surface, $\Gamma$, to move such that this energy is minimized. This is called \textit{gradient flow}. Gradient flow is in short a continuous gradient descent formulation, such that the motion of a point is always in the direction of maximum descent. For points $\mathbf{x}$ in a domain \domain in a potential field $f(\mathbf{x})$, this can be formulated as:
+
+\begin{equation}
+    \mathbf{x}_t = -\nabla f(\mathbf{x}).
+    \label{eq:grad-flow}
+\end{equation}
+
+Defining the function $f(\mathbf{x})$ is a modeling question and will decide the behavior of our partial differential equation \eqref{eq:general-level-set}. We have to construct the function such that the velocity field moves the surface to the stationary result $\Gamma_f$ that meets our requirements. In order to do this, we must clearly define what those are.
+
+\begin{proposition}[Problem definition]
+We want to construct a surface $\Gamma_f$ dependent on the point set $V$ that 
+\end{proposition}
+
+provide a velocity field that again will lead our curve to the desired stationary solution $\Gamma_f$. The stationary solution is obtained when $u_t = 0$ which means that the gradient of the potential field is zero, as seen in \eqref{eq:grad-flow}. 
+
+Using our implicit level set formulation of our surface, defined in \eqref{eq:interior}-\eqref{eq:exterior}, we define a potential value function for a domain $\Omega$ as defined in \eqref{eq:interior}. 
+
+\begin{comment}
+
 We now want to use a level set method to solve a problem as described in the
 introduction. We have sampled data from an unknown surface/curve and want to
 reconstruct the original surface. We then want to find the appropriate velocity
 field from \eqref{eq:general-level-set} in a way such that our surface $\Gamma$ 
 flows in the direction of our points at the same time as it preserves smoothness. We
-approach this by formulating the situation as an optimisation problem, or more
+approach this by formulating the situation as an optimization problem, or more
 specifically, we construct a \textit{gradient flow equation} for our domain $\Omega$. 
 
-Gradient flow is the continuous version of the steepest descent algorithm. The descent methods are optimisation algorithms for finding minimisers of functionals and the idea is
+Gradient flow is the continuous version of the steepest descent algorithm. The descent methods are optimisation algorithms for finding minimizers of functionals and the idea is
 to always move in the direction of steepest descent. Mathematically this is formulated as follows. \todo{define variables} 
-\begin{equation}
-    X_t = -\nabla f(X).
-\end{equation}
 
-In order to use this optimisation formulation, we need to construct a function depending
+
+In order to use this optimization formulation, we need to construct a function depending
 on the domain $\Omega$ that has a minima when, $\Gamma$, the surface of $\Omega$
 is the desired surface we are looking for. As we are introducing the movement of $\Gamma$
-as a flow, it fits nicely to call this function we are optimising, an energy function. 
+as a flow, it fits nicely to call this function we are optimizing, an energy function. 
 Using that, we can think of our curve moving in a type of gravitational field, drawn
 towards the point set V and influenced by a surface tension to ensure smoothness. 
 
@@ -139,4 +172,6 @@ the global stationary solution. The velocity will be zero only on the curve. Thu
 we need a stopping criterion for the problem \eqref{eq:general-level-set}. 
 
 \section{Existence of a stationary solution}
+\end{comment}
 
+\input{chapters/distance-functions.tex}

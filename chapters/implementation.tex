@@ -1,11 +1,110 @@
 \chapter{Implementation}
 
+We have the PDE
+\begin{equation}
+    u_t = |\nabla u| (\nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg) + \alpha d),
+    \label{eq:pde-eq1}
+\end{equation}
+which we want to solve numerically.
+
 \section{Space Discretization}
+For the two-dimensional case, we rewrite the right hand side of \eqref{eq:pde-eq1} in order to see if it can be simplified. 
+
+\begin{proposition}\label{prop:simplification-equation}
+In two spatial dimensions, \eqref{eq:pde-eq1} can be written as
+\begin{equation}
+    u_t = \frac{u_x^2 u_{yy} - 2 u_{xy} u_x u_y + u_y^2u_{xx}}{u_x^2 + u_y^2} + (u_x^2 + u_y^2)^{\frac{1}{2}}\alpha d
+    \label{eq:pde-written-out}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+\begin{equation}
+    u_t = |\nabla u| (\nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg) + \alpha d) = |\nabla u|\,\bigg( \nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg) \bigg) + |\nabla u| \alpha d \label{eq:proof-writeout}
+\end{equation}
+The last term can not be simplified further, so we will only look further into the first term.
+
+Using the product rule, we get
+\begin{equation*}
+    \nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg) = \frac{\Delta u}{|\nabla u|} + \nabla u \cdot \nabla\bigg( \frac{1}{|\nabla u|}\bigg)
+\end{equation*}
+
+Writing out the gradient operators for each term, we obtain
+\begin{align}
+    |\nabla u| &= (u_x^2+u_y^2)^{\frac{1}{2}} \label{eqs:grads-1}\\
+    \Delta u &= (u_{xx} + u_{yy}) \label{eqs:grads-2}\\
+    \nabla u &= \begin{bmatrix}u_x & u_y \end{bmatrix} \label{eqs:grads-3}\\
+    \nabla \bigg( \frac{1}{|\nabla u|} \bigg) &= \begin{bmatrix}\bigg( \frac{1}{|\nabla u|} \bigg)_x & \bigg( \frac{1}{|\nabla u|} \bigg)_y \end{bmatrix} \label{eqs:grads-4}\\
+    \bigg( \frac{1}{|\nabla u|} \bigg)_x &= -\frac{1}{2} (u_x^2+u_y^2)^{-\frac{3}{2}}(2u_x u_{xx}+2u_y u_{xy}) \label{eqs:grads-5}\\
+    \bigg( \frac{1}{|\nabla u|} \bigg)_y &= -\frac{1}{2} (u_x^2+u_y^2)^{-\frac{3}{2}}(2u_y u_{yy}+2u_x u_{xy}) \label{eqs:grads-6}
+\end{align}
+
+Using \eqref{eqs:grads-1}-\eqref{eqs:grads-6}, we obtain
+\begin{equation*}
+    \begin{gathered}
+        |\nabla u|\, \bigg(\nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg)\bigg)
+        = (u_x ^2 + u_y ^2)^{\frac{1}{2}} \bigg( \frac{\Delta u}{|\nabla u|} + \nabla u \cdot \nabla \bigg(\frac{1}{|\nabla u|} \bigg) \bigg) \\
+        = (u_x ^2 + u_y ^2)^{\frac{1}{2}} \bigg[ (u_{xx} + u_{yy}) (u_x ^2 + u_y ^2)^{-\frac{1}{2}} - \frac{1}{2} (u_x ^2 + u_y ^2)^{-\frac{3}{2}} (2u_x^2u_{xx}+4u_x u_{xy} u_y + 2u_y^2 u_{yy})\bigg] \\
+        = (u_{xx} + u_{yy}) - \frac{1}{u_x^2+u_y^2} (u_x^2 u_{xx}+2u_{xy} u_x u_y + u_y^2 u_{yy}) \\
+        = \frac{1}{u_x^2+u_y^2} ( (u_{xx} + u_{yy})(u_x^2 + u_y^2) - u_x^2 u_{xx}-2u_{xy} u_x u_y - u_y^2 u_{yy}) \\
+        = \frac{1}{u_x^2+u_y^2}(u_{xx}u_x^2 + u_{yy}u_x^2 + u_y^2u_{xx}+ u_y u_{yy}-u_x^2 u_{xx}-2u_{xy} u_x u_y - u_y^2 u_{yy}) \\
+        = \frac{u_x^2u_{yy} - 2u_{xy}u_xu_y + u_y^2u_{xx}}{u_x^2+u_y^2}.
+    \end{gathered}
+\end{equation*}
+
+Thus 
+\begin{equation*}
+    u_t = \frac{u_x^2 u_{yy} - 2 u_{xy} u_x u_y + u_y^2u_{xx}}{u_x^2 + u_y^2} + (u_x^2 + u_y^2)^{\frac{1}{2}}\alpha d
+\end{equation*}
+\end{proof}
+
+
 \subsection{A Finite Difference Scheme}
+We want to implement a finite difference approximation on our domain $\mathcal{D} = [x_{\text{start}}, x_{\text{end}}]\times[y_{\text{start}}, y_{\text{end}}]$. To make a uniform discretization of the domain, \domain, we divide the $x-$ and $y-$axis with respectively $N_x$ vertical lines and $N_y$ horizontal lines equally distributed. In every crossing of such lines, there are nodal points, which gives a total of $N_x\times N_y$ nodal points in our domain. Since the grid is uniform, the horizontal distance between the nodal points will be $\Delta x = \frac{x_{\text{end}} - x_{\text{start}}}{N_x-1}$ and $\Delta y = \frac{y_{\text{end}} - y_{\text{start}}}{N_y-1}$ in vertical direction. 
+
+We then denote the nodal points with coordinates $[x_i, y_j] = [x_0 + i\Delta x, y_0+j\Delta y]$ where $x_0 = x_{\text{start}}$ and $y_0 = y_{\text{start}}$. The value of our function \uxt at the nodal point $[x_i, y_j]$  at a certain time $t_n$ is then denoted $U_{i, j}|^n = u(x_i, y_i; t_n)$. These are the approximated values of our function. In addition, to be able to approximate the time derivative $u_t$ from \eqref{eq:pde-eq1}, we need the discretized curvature and gradient of our function \uxt. We begin with listing the standard central difference approximations for the first and second order derivatives in addition the the mixed derivative.
+
+\begin{align}
+    u_x (x_i, y_j) &= \frac{\Uipj - \Uinj}{2\Delta x} \label{eq:x-deriv}\\
+    u_y (x_i, y_j) &= \frac{\Uijp - \Uijn}{2\Delta y} \label{eq:y-deriv} \\
+    u_{xx} (x_i, y_j) &= \frac{\Uipj-2\Uij+\Uinj}{\Delta x ^2} \label{eq:x-doublederiv} \\
+    u_{yy} (x_i, y_j) &= \frac{\Uijp - 2\Uij + \Uijn}{\Delta y^2} \label{eq:y-doublederiv} \\
+    u_{x, y} (x_i, y_j) &= \frac{\Uipjp-\Uipjn-\Uinjp+\Uinjn}{4\Delta x \Delta y}
+\end{align}
+
+Looking at \eqref{eq:pde-written-out} we see that the resulting stencil for inserting the discretized operators into \eqref{eq:pde-written-out} will be a eight-pointed star as shown in \figref{fig:stencil+grid}.
+
+
+\begin{figure}
+    \centering
+    \input{figures/tikz-figures/2d-grid}
+    \caption{Caption}
+    \label{fig:stencil+grid}
+\end{figure}
+
+
 
 
 \section{Re-initialization}
+Why we do this: steep gradient
+
+Re-initialization in this context means using the temporal solution $U|_{t=t_n}$ and transforming it into a signed distance function, representing the distance to its zero iso-contour, $\Gamma_{n}$. The reason why this is called re-initialization is that this corresponds to restarting the algorithm with $\Gamma_0 = \Gamma_{n}$.
+
+
+
+As described in \secref{sec:distance-function} one needs to know not only the curve $\Gamma$, in order to construct a signed distance function, but also where the inside and outside of the curve is. In general, this is not trivial to decide. In our special case, we are not only given the zero level-curve $\Gamma$, but also the underlying function $U|_{t=t_n}$. 
+
+The re-initialization is only suppose to fix the shape of $U|_{t=t_n}$, not the sign. Thus a signed distance function can easily be constructed by an unsigned distance function to $\Gamma$ and multiply with the sign of $U|_{t=t_n}$. Re-initialization can thus be described as follows:
+
+\begin{equation}
+    \Tilde{U}_{t_n} = d(\mathbf{x}; \Gamma_{t_n})\cdot \texttt{sign}(U_{t_n})
+\end{equation}
+
 
 Why is it not so smart to find distance function to the iso-contour and multiply with sign-function?
 In that case we must find the actual contourline explicitly. In the case of plt.contour, we only have 
 points or line segments, which means that we loose information. We linearise the contour and thus, we change the zero iso-contour which we do not want.
+
+\section{Time Discretization}
+
+

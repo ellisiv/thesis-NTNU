@@ -1,5 +1,6 @@
-\documentclass[british]{ntnuthesis}
-
+\documentclass[american]{ntnuthesis}
+\newtheorem{proposition}{Proposition}[chapter]
+\newtheorem{definition}{Definition}[chapter]
 
 \title{A PDE Based Strategy for Reconstructing Surfaces from Irregular and Unstructured Sampled Data}
 \shorttitle{Reconstructing Surfaces from Sampled Data}
@@ -15,6 +16,7 @@
 
 \input{chapters/0a-abstract.tex}
 \input{chapters/0b-sammendrag.tex}
+\input{chapters/0c-preface.tex}
 
 \tableofcontents
 \listoffigures
@@ -24,7 +26,7 @@
 \printglossary[type=\acronymtype] % Print acronyms
 \printglossary                    % Print glossary
 
-\input{chapters/introduction}
+\input{chapters/1-introduction}
 \input{chapters/levelset.tex}
 \input{chapters/implementation}
 %\input{chapters/2-usage.tex}
