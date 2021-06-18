@@ -1,21 +1,23 @@
 \chapter{Introduction} \label{chap:introduction}
-The topic of this thesis is a modeling problem described by Claisse and Frey in a paper from 2011\cite{Claisse-Frey}. The paper proposed a nonlinear PDE model for reconstructing a regular surface from unstructured, sampled data with use of a level set formulation. Their model is the starting point of this thesis, which is a study of the theoretical background, implementation and behavior of the model.
+This master thesis is based on a modeling problem described by Claise and Frey in a paper from 2011\cite{Claisse-Frey}. The paper proposed a nonlinear PDE model for reconstructing a regular surface from unstructured, sampled data with use of a level set formulation. The paper and its mathematical model is the starting point of this thesis, which is a study of the theoretical background and implementation of the purposed model in addition to a proposal for a model with different behavior and strengths. 
 
-The motivation for this study lies in the application, and a good understanding of the situation is important for a well-functioning mathematical model. We are given an unstructured set of points, \pointset, and want to construct a closed surface with minimal curvature which approximates a surface going through all points. In practice, this is done by constructing a model with an attractive term, based on a distance function, $d(\mathbf{x})$, that draws the surface towards our points and a compensatory curvature term to drive the surface in a direction of diminishing curvature.
+The background for this study is an ongoing project with \todo{hvem står bak prosjektet?} with the goal of estimating bedrock topography and the geometry of the sediment thickness. This is a shape reconstruction problem, where there are taken samples of the sediment thickness, and from these measurements we want the best possible approximation of the total bedrock topography. The object of interest, in this situation the bedrock, can only be observed implicitly through measurements and thus we know little about the object beforehand.
 
-We will derive the main equation, which models our surface, which is a Hamilton-Jacobi initial value problem on the form:
-\begin{equation}
-    \begin{cases}
-    u_t = |\nabla u|(\kappa (u) + \alpha d(\mathbf{x})) \\
-    u(0, \mathbf{x}) = u_0 \\
-    \frac{\partial u}{\partial n} = 0
-    \end{cases}
-    \label{eq:eq1-cf}
-\end{equation}
-This equation will be the main focus and the common thread throughout the theoretical background and also the implementational and more practical parts. 
+    Because of the practical application, we cannot assume much about our data points, and that is why it is said that they are \textit{irregular} and \textit{unstructured}. Unstructured, because we do not know anything about the numbering of the points, say in two spatial dimensions, we do not know which points to draw the curve between to approximate the shape. Irregular, because there is no assumption on how the samples are placed, if they are lumped together or far from each other.
 
-The model relies on the theory of level set formulations, which ** introduction to the pioneering work on level set formulations **
+The purposed model which is studied in this thesis is thus simple and general and considers only that we want a curve or surface that lie close the the data points, meaning minimal distance, and the curve should be smooth in the sense of minimal curvature. Considering that this thesis is only an investigation on how the purposed model would behave, and thus a study on a possible approach for the bedrock topology problem, we restrict ourselves only to the two dimensional situation in order to free more time to analysis in stead of implementation. 
 
+Our mathematical model is a partial differential equation, constructed from a \textit{level set formulation}. Level set methods was introduced by Osher and Sethian\cite{Osher-Sethian} as an implicit approach to track a moving front. By representing the front implicitly topological changes like merging or braking would be handled naturally. Many have used this paper as a stepping stone and applied level set methods to a variety of physical applications like multiphase phase flow \cite{SUSSMAN1994146} \cite{ZHAO1996179}, crystal growth \cite{sethian1999level} and in image applications like image enhancement and noise reduction \cite{sethian1999level} \cite{RUDIN1992259} and shape detection \cite{368173} \cite{sethian1999level} \cite{5754584} among other things.
+
+This thesis will provide an introduction to general level set methods and distance functions in \chapref{chap:background-theory} containing an implicit derivation, and a proof that explicit tracking of a curve, and implicit tracking through a level set method provides the same result.
+
+\chapref{chap:modeling} will explain the background for modeling a level set formulation to a set of sampled points in addition to some analysis of the behavior in a simplified 1D situation and how parameter choises affect the results.
+
+In \chapref{chap:implementation}, we provide the background for the numerical implementation, and present the main implementational challenges and possible solutions. From this, we present results of simulations in \chapref{chap:results} using different parameter choices and affirming the analysis from \chapref{chap:modeling}.
+
+Finally, in \chapref{chap:concluding-remarks} we present interesting aspects to look further into and discuss the applicability of the level set method for general curve reconstruction and our specific bedrock approximation problem.
+%\input{chapters/problem-setup}
+\begin{comment}
 ** How can this theory be applied in the real world?
 
 ** What are the strengths and weaknesses?
@@ -25,7 +27,7 @@ The model relies on the theory of level set formulations, which ** introduction 
 ** Further work
 
 
-\begin{comment}
+
 From an unstructured set of points, $V$, we want to find a closed surface that approaches the point set as closely as possible while also requiring some extent of smoothness. Such a method could be useful when the surface can not be directly observed, but only measured pointwise. An example of this could be modelling geological formations underground or ...
 
 From realistic samples the data would be susceptible to measurement errors and thus a model should be able to handle noisy point sets. However, for the resulting surface to make any sense, the points should not be arbitrarily distributed in the domain, but follow some pattern resembling a surface.

@@ -1,0 +1,15 @@
+\section{Re-initialization} \label{sec:reinitialization}
+\todo{Burde jeg bruke U over alt?}We discussed in the theoretical section on level set methods that $|\nabla u|$ scales the change in \uxt\ needed to move the curve with the given speed $v_n$. The velocity functions defined for our models are all dependent on the curvature and distance, which is not the same for all level curves. The result is that they move with different speeds, and the shape of \uxt\ loses the property that $|\nabla u|=1$ everywhere. 
+
+For the implemented discretization techniques, steep gradients are a problem in themselves because there could be formed oscillations near the steep regions, which can ruin the solution if they grow big enough. Also, it has been shown, for example by D. Peng et al. \cite{Fast-PDE} that the evolution of the curve may be unstable if the gradient is too steep or flat. The procedure of re-initializing will keep the gradient from deviating much from $|\nabla U|=1$ by restarting the procedure but not reset the time. 
+
+What this means in practice is that the zero level set $\Gamma^n$ of the last temporal solution $U^{n}$ will form the starting curve of a new level set problem. Thus, we form a signed distance function $\tilde{U}^n$ from $\Gamma^n$ and then $\tilde{U}^n$ is used as the higher dimensional level set function.
+
+The signed distance function can be formed in two ways. The first one is using the straight forward approach for calculating a distance function from Algorithm \ref{alg:direct-distance} and multiply with the sign of the old level set function $U^n$. This works because $\Gamma^n$ is the zero level set of both $U^n$ and $\tilde{U}^n$. This means solving
+\begin{equation}
+    \tilde{U}^{n} = d(\mathbf{x}; \Gamma^{n})\cdot \texttt{sign}(U^{n}).
+\end{equation}
+As described in \secref{sec:imp-dist}, Algorithm \ref{alg:direct-distance} is time consuming and especially poor suited for computing distances to a discretized curve. Thus, the faster approach, which is the one implemented in the code base for this thesis, is the Fast Marching Method.
+
+Using the \texttt{scikit.fmm} package in Python is especially easy, as it is perfectly compatible with level set functions. It takes a higher dimensional function as input, together with the grid size, and returns a signed distance to the curve using \texttt{skfmm.distance()}.
+

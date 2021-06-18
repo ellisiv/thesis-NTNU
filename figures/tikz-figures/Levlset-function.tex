@@ -1,0 +1,48 @@
+\begin{tikzpicture}
+ 
+\begin{axis}[colormap/cool, colorbar horizontal]
+\addplot3 [
+    domain=-1:2,
+    domain y = -1:1,
+    samples = 51,
+    samples y = 21,
+    surf,
+    faceted color = teal] { x < 0.5 ? sqrt(x^2 + y^2)-0.4 : sqrt((x-1)^2 + (y)^2)-0.4};
+\addplot3 [
+            % increase a bit the number of samples so `smooth' does a good job
+    domain=-1:2,
+    domain y = -1:1,
+    samples=51,
+    samples y=51,
+    contour gnuplot={
+        % state at which levels you want to draw the contour lines
+        levels={0},
+        % we don't want to add labels
+        labels=false,
+        % they should be drawn in black
+        draw color=black
+        % and they should be smoothed
+        %handler/.style=smooth,
+    },
+] { x < 0.5 ? sqrt(x^2 + y^2)-0.4 : sqrt((x-1)^2 + (y)^2)-0.4};
+\addplot3 [
+    domain=-1:2,
+    domain y = -1:1,
+    % increase a bit the number of samples so `smooth' does a good job
+    samples=51,
+    samples y=51,
+    contour gnuplot={
+        % state at which levels you want to draw the contour lines
+        levels={0.3},
+        % we don't want to add labels
+        labels=false,
+        % they should be drawn in black
+        draw color=black,
+        % and they should be smoothed
+        %handler/.style=smooth,
+    }, dashed
+] { x < 0.5 ? sqrt(x^2 + y^2)-0.4 : sqrt((x-1)^2 + (y)^2)-0.4};
+ 
+\end{axis}
+ 
+\end{tikzpicture}

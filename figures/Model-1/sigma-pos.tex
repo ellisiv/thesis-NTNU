@@ -1,0 +1,24 @@
+\begin{tikzpicture}
+
+\begin{axis}[
+    axis lines = center,
+    ymin=-1,
+    ymax=1,
+    y label style={at={(axis description cs:-0.15,.5)},rotate=90,anchor=south},
+    xlabel = $r$,
+    ylabel = {$\sigma d$}]
+    \addplot [
+        domain=0:1, 
+        samples=20,
+    ]
+    {abs(1-x};
+    \addplot [
+        domain=1:2, 
+        samples=20,
+    ]
+    {abs(1-x)};
+
+ 
+\end{axis}
+ 
+\end{tikzpicture}

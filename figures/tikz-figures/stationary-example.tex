@@ -1,0 +1,20 @@
+\begin{tikzpicture}
+\begin{axis}[
+    trig format plots=rad,
+    axis equal,
+    hide axis
+]
+\addplot [domain=0:2*pi, samples=80, black] ({4*sin(x)}, {4*cos(x)});
+\addplot [only marks, domain=0:2*pi, samples=150, mark=*, mark size=0.02cm,thesisblue] ({3*sin(x)}, {3*cos(x)});
+\addplot[domain=0:3*cos(pi/4), samples=20, thesisblue] ({x}, {x});
+\addplot[domain=0:2*cos(pi/8)*0.97, samples=20, black] ({2*x}, {x});
+\draw [-latex,/pgfplots/every inner x axis line, draw=black, line cap=rect] (axis cs:0,0) -- (axis cs:5, 0);
+\draw [-latex,/pgfplots/every inner y axis line, draw=black, line cap=rect] (axis cs:0,0) --(axis cs:0, 4.5);
+
+
+\end{axis}
+\node [rotate=22.4] at (4.6, 3.2) {$r_v + d$} ;
+\node [rotate=45] at (4, 3.7) {$r_v$} ;
+\node at (4.6, 0.4) {$\Gamma (t)$} ;
+\node at (3.5, 1.3) {$\Gamma_{\mathcal{V}}$} ;
+\end{tikzpicture}

@@ -1,0 +1,49 @@
+\section{Initialization}
+The initialization of the algorithm mainly consists of the following parts: Setting up the grid, calculating $u(\mathbf{x}, 0)$ from the initial curve $\Gamma(0)$, calculating \distanceV\ and initializing the sign function $\sigma(\mathbf{x}, 0)$. 
+
+For a rectangular grid with equidistant grid points, the construction is very simple and we will thus only discuss it briefly. In python the numpy package contains useful functions like $\texttt{linspace}(x_{\text{start}}, x_{\text{end}}, N)$ producing an array of equidistant points and $\texttt{meshgrid}(x, y)$ for producing a two dimensional grid spanned by the discretized $x$- and $y$-axis. 
+
+The initialization of the higher dimensional function, $u$, consists of calculating a signed distance function to the initial curve, $\Gamma(0)$. Because the algorithm does not assume anything about the structure or the shape of the final curve, we use a function encircling our point set, \pointset. An additional advantage when using the circle as initial curve is that the signed distance is very easy to compute.
+
+For an initial circle $\Gamma(0)$ with center in $\mathbf{c}$ the signed distance at a point $\mathbf{x}$ is given as
+\begin{equation}
+    d(\mathbf{x}, \Gamma(0)) = \sqrt{(\mathbf{x}-\mathbf{c})^T(\mathbf{x}-\mathbf{c})}-r_{\Gamma}.
+    \label{eq:signed-distance-circle}
+\end{equation}
+
+The next step is calculating the distance function to the point set and initializing $\sigma(\mathbf{x}, 0)$. Since the initial curve is chosen to surround all points, the initial sign is automatically positive on the whole domain. Nevertheless, the data structure needed to update the function needs to be set up. 
+
+\todo{Skriv om sigma i modellering før du forklarer mer}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+$\sigma = \texttt{ones}(N, M)$ \;
+$V = \{\texttt{sample\_points}(\texttt{coordinates}=\{v\}, \texttt{closest\_points}=\{\})\}$ \;
+$d = \texttt{zeros}(N, M)$
+
+
+
+\For{$i\gets0$ \KwTo $N$}{
+    \For{$j\gets0$ \KwTo $M$}{
+        \tcc{Calculate closest point in point set and assign the grid point to that point}
+        $d(i, j) = \{\|X(i, j)- v\|$ \textbf{for} $v\in \pointsetm$\}.\texttt{min}() \;
+        $c_v= \{\|X(i, j)- v\|$ \textbf{for} $v\in \pointsetm$\}.\texttt{argmin}() \tcp*{The closest sample point}
+        $V(c_v).\texttt{closest\_points} \pluseq X(i, j)$ \;
+    }
+}
+\KwResult{$V$, $\sigma$, $d$}
+ \caption{Initializing $\sigma(\mathbf{x})$ and $d(\mathbf{x};\pointsetm)$}
+ \label{alg:sigma-dist}
+\end{algorithm}
+
+
+\begin{comment}
+\begin{itemize}
+    \item Setting up the grid 
+    \item Initializing $\sigma(\mathbf{x}, 0)$
+    \item Calculating \distanceV
+    \item Initializing \uxt
+\end{itemize}
+\end{comment}
+
+\clearpage

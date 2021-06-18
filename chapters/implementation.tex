@@ -1,110 +1,69 @@
-\chapter{Implementation}
+\chapter{Implementation}\label{chap:implementation}
+\todo{Jeg har ennå ikke presentert randbetingelser. Burde de inn i diskretisering eller i teorien?}We have now looked at the theoretical aspects of the level set method and constructed velocity models under the objective of approximating a curve with minimal curvature to a set of sampled points. Nothing is yet mentioned about the solution strategy and practical aspects. This chapter will answer questions concerning the technical implementation, the overall strategy chosen in this thesis, and possible pitfalls and approaches to overcome them. The entire code base for the implementation is written in Python. However, most of this chapter explains logic and algorithms which can be adapted to any preferred language.
 
-We have the PDE
-\begin{equation}
-    u_t = |\nabla u| (\nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg) + \alpha d),
-    \label{eq:pde-eq1}
-\end{equation}
-which we want to solve numerically.
+More concrete, we will discuss spatial and temporal discretization techniques, suitable algorithms for producing the distance function and sign function, and how to prevent steep gradients from forming through a re-initialization procedure. We will first go into all aspects of the program separately and later put it all together and provide an overview of the main program.
 
-\section{Space Discretization}
-For the two-dimensional case, we rewrite the right hand side of \eqref{eq:pde-eq1} in order to see if it can be simplified. 
+Before moving on to the implementational details, we remind ourselves of the three models presented: the three partial differential equations we want our implementation to solve numerically.
 
-\begin{proposition}\label{prop:simplification-equation}
-In two spatial dimensions, \eqref{eq:pde-eq1} can be written as
-\begin{equation}
-    u_t = \frac{u_x^2 u_{yy} - 2 u_{xy} u_x u_y + u_y^2u_{xx}}{u_x^2 + u_y^2} + (u_x^2 + u_y^2)^{\frac{1}{2}}\alpha d
-    \label{eq:pde-written-out}
-\end{equation}
-\end{proposition}
+\begin{alignat}{2}
+    u_t &= |\nabla u|\,[\alpha\sigma(\mathbf{x}, t) d(\mathbf{x}; \pointsetm) + (1-\alpha) \kappa(u)], &\alpha \in \realspacem \label{eq:m1-imp}\\
+    u_t &= |\nabla u|\, \bigg[\alpha \frac{ \sigma(\mathbf{x}, t)}{\beta d(\mathbf{x})+\delta} + (1-\alpha)\kappa (u) \bigg], &\alpha, \beta, \delta \in \realspacem \label{eq:m2-imp}\\
+    u_t &= |\nabla u|\, \bigg[ \frac{\alpha \sigma(\mathbf{x}, t)}{\pi/2} \tan^{-1}\bigg(\frac{1}{\beta \distanceVm}\bigg) + (1-\alpha)\kappa (u) \bigg], \, &\alpha, \beta \in \realspacem \label{eq:m3-imp}
+\end{alignat}
 
-\begin{proof}
-\begin{equation}
-    u_t = |\nabla u| (\nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg) + \alpha d) = |\nabla u|\,\bigg( \nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg) \bigg) + |\nabla u| \alpha d \label{eq:proof-writeout}
-\end{equation}
-The last term can not be simplified further, so we will only look further into the first term.
+We begin with some notation concerning the discretization of the domain, \domain, and properties of the discretized problem. There are several ways to discretize the domain, and when efficiency is essential, adaptive mesh strategies or local methods can be of use. However, the focus for this project was more about investigating the behaviors of the proposed models, and the efficiency of the implementation was secondary. We thus chose a straightforward rectangular discretization.
 
-Using the product rule, we get
+All the sets of sampled points, \pointset, used in the following results have been fabricated data, and thus for simplicity, the domain, \domain, had been defined as $\domainm = [-1, 1]\times [-1, 1]$. The grid resolution is measured by the parameters $N_x$ and $N_y$ which is the number of nodes in respectively $x$- and $y$- direction. The corresponding grid size is then $h_x = 2/(N_x-1)$ and $h_y = 2/(N_y-1)$. 
+
+We use the numbering of grid nodes as the convention for the Python package nympy's two-dimensional arrays. A grid point $(y_i, x_j)$ is positioned in the $i$th row counted from the bottom and $j$th column counted from the left. We have used numpy's \texttt{meshgrid} to produce the grid, which will be represented by the matrix $X$ containing both $x$- and $y$-coordinates. A grid node $(y_i, x_j)$ can thus also be represented as $X_{i, j}$. Note that this is a simplification of the \texttt{meshgrid} variables which saves the $x$- and $y$-coordinates in separate matrices $X$ and $Y$. \todo{Gå gjennom alle i og j for å sjekk at alt er riktig.}
+
+\clearpage
+
+
+\section{Temporal and Spatial Discretization} \label{sec:discretization}
+This section will go through the discretization of the differential operators in the PDEs \eqref{eq:m1-imp} -- \eqref{eq:m2-imp}. This section will be rather short, as all spatial derivatives are discretized using central differences and the temporal discretization is the forward/explicit Euler method. 
+
+Generally, we can express all models as 
 \begin{equation*}
-    \nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg) = \frac{\Delta u}{|\nabla u|} + \nabla u \cdot \nabla\bigg( \frac{1}{|\nabla u|}\bigg)
+    u_t = |\nabla u| \, (\alpha f_p(\mathbf{x}) + (1-\alpha) \kappa(u)),
 \end{equation*}
-
-Writing out the gradient operators for each term, we obtain
-\begin{align}
-    |\nabla u| &= (u_x^2+u_y^2)^{\frac{1}{2}} \label{eqs:grads-1}\\
-    \Delta u &= (u_{xx} + u_{yy}) \label{eqs:grads-2}\\
-    \nabla u &= \begin{bmatrix}u_x & u_y \end{bmatrix} \label{eqs:grads-3}\\
-    \nabla \bigg( \frac{1}{|\nabla u|} \bigg) &= \begin{bmatrix}\bigg( \frac{1}{|\nabla u|} \bigg)_x & \bigg( \frac{1}{|\nabla u|} \bigg)_y \end{bmatrix} \label{eqs:grads-4}\\
-    \bigg( \frac{1}{|\nabla u|} \bigg)_x &= -\frac{1}{2} (u_x^2+u_y^2)^{-\frac{3}{2}}(2u_x u_{xx}+2u_y u_{xy}) \label{eqs:grads-5}\\
-    \bigg( \frac{1}{|\nabla u|} \bigg)_y &= -\frac{1}{2} (u_x^2+u_y^2)^{-\frac{3}{2}}(2u_y u_{yy}+2u_x u_{xy}) \label{eqs:grads-6}
-\end{align}
-
-Using \eqref{eqs:grads-1}-\eqref{eqs:grads-6}, we obtain
-\begin{equation*}
-    \begin{gathered}
-        |\nabla u|\, \bigg(\nabla \cdot \bigg(\frac{\nabla u}{|\nabla u|}\bigg)\bigg)
-        = (u_x ^2 + u_y ^2)^{\frac{1}{2}} \bigg( \frac{\Delta u}{|\nabla u|} + \nabla u \cdot \nabla \bigg(\frac{1}{|\nabla u|} \bigg) \bigg) \\
-        = (u_x ^2 + u_y ^2)^{\frac{1}{2}} \bigg[ (u_{xx} + u_{yy}) (u_x ^2 + u_y ^2)^{-\frac{1}{2}} - \frac{1}{2} (u_x ^2 + u_y ^2)^{-\frac{3}{2}} (2u_x^2u_{xx}+4u_x u_{xy} u_y + 2u_y^2 u_{yy})\bigg] \\
-        = (u_{xx} + u_{yy}) - \frac{1}{u_x^2+u_y^2} (u_x^2 u_{xx}+2u_{xy} u_x u_y + u_y^2 u_{yy}) \\
-        = \frac{1}{u_x^2+u_y^2} ( (u_{xx} + u_{yy})(u_x^2 + u_y^2) - u_x^2 u_{xx}-2u_{xy} u_x u_y - u_y^2 u_{yy}) \\
-        = \frac{1}{u_x^2+u_y^2}(u_{xx}u_x^2 + u_{yy}u_x^2 + u_y^2u_{xx}+ u_y u_{yy}-u_x^2 u_{xx}-2u_{xy} u_x u_y - u_y^2 u_{yy}) \\
-        = \frac{u_x^2u_{yy} - 2u_{xy}u_xu_y + u_y^2u_{xx}}{u_x^2+u_y^2}.
-    \end{gathered}
-\end{equation*}
-
-Thus 
-\begin{equation*}
-    u_t = \frac{u_x^2 u_{yy} - 2 u_{xy} u_x u_y + u_y^2u_{xx}}{u_x^2 + u_y^2} + (u_x^2 + u_y^2)^{\frac{1}{2}}\alpha d
-\end{equation*}
-\end{proof}
-
-
-\subsection{A Finite Difference Scheme}
-We want to implement a finite difference approximation on our domain $\mathcal{D} = [x_{\text{start}}, x_{\text{end}}]\times[y_{\text{start}}, y_{\text{end}}]$. To make a uniform discretization of the domain, \domain, we divide the $x-$ and $y-$axis with respectively $N_x$ vertical lines and $N_y$ horizontal lines equally distributed. In every crossing of such lines, there are nodal points, which gives a total of $N_x\times N_y$ nodal points in our domain. Since the grid is uniform, the horizontal distance between the nodal points will be $\Delta x = \frac{x_{\text{end}} - x_{\text{start}}}{N_x-1}$ and $\Delta y = \frac{y_{\text{end}} - y_{\text{start}}}{N_y-1}$ in vertical direction. 
-
-We then denote the nodal points with coordinates $[x_i, y_j] = [x_0 + i\Delta x, y_0+j\Delta y]$ where $x_0 = x_{\text{start}}$ and $y_0 = y_{\text{start}}$. The value of our function \uxt at the nodal point $[x_i, y_j]$  at a certain time $t_n$ is then denoted $U_{i, j}|^n = u(x_i, y_i; t_n)$. These are the approximated values of our function. In addition, to be able to approximate the time derivative $u_t$ from \eqref{eq:pde-eq1}, we need the discretized curvature and gradient of our function \uxt. We begin with listing the standard central difference approximations for the first and second order derivatives in addition the the mixed derivative.
-
-\begin{align}
-    u_x (x_i, y_j) &= \frac{\Uipj - \Uinj}{2\Delta x} \label{eq:x-deriv}\\
-    u_y (x_i, y_j) &= \frac{\Uijp - \Uijn}{2\Delta y} \label{eq:y-deriv} \\
-    u_{xx} (x_i, y_j) &= \frac{\Uipj-2\Uij+\Uinj}{\Delta x ^2} \label{eq:x-doublederiv} \\
-    u_{yy} (x_i, y_j) &= \frac{\Uijp - 2\Uij + \Uijn}{\Delta y^2} \label{eq:y-doublederiv} \\
-    u_{x, y} (x_i, y_j) &= \frac{\Uipjp-\Uipjn-\Uinjp+\Uinjn}{4\Delta x \Delta y}
-\end{align}
-
-Looking at \eqref{eq:pde-written-out} we see that the resulting stencil for inserting the discretized operators into \eqref{eq:pde-written-out} will be a eight-pointed star as shown in \figref{fig:stencil+grid}.
-
-
-\begin{figure}
-    \centering
-    \input{figures/tikz-figures/2d-grid}
-    \caption{Caption}
-    \label{fig:stencil+grid}
-\end{figure}
-
-
-
-
-\section{Re-initialization}
-Why we do this: steep gradient
-
-Re-initialization in this context means using the temporal solution $U|_{t=t_n}$ and transforming it into a signed distance function, representing the distance to its zero iso-contour, $\Gamma_{n}$. The reason why this is called re-initialization is that this corresponds to restarting the algorithm with $\Gamma_0 = \Gamma_{n}$.
-
-
-
-As described in \secref{sec:distance-function} one needs to know not only the curve $\Gamma$, in order to construct a signed distance function, but also where the inside and outside of the curve is. In general, this is not trivial to decide. In our special case, we are not only given the zero level-curve $\Gamma$, but also the underlying function $U|_{t=t_n}$. 
-
-The re-initialization is only suppose to fix the shape of $U|_{t=t_n}$, not the sign. Thus a signed distance function can easily be constructed by an unsigned distance function to $\Gamma$ and multiply with the sign of $U|_{t=t_n}$. Re-initialization can thus be described as follows:
-
+where $p=1, 2, 3$, and $f_p$ is the distance dependent velocity for model $p$. Expanding all terms and using \eqref{eq:curvature-u} in order to explicitly view all differential operators, this can be written as
 \begin{equation}
-    \Tilde{U}_{t_n} = d(\mathbf{x}; \Gamma_{t_n})\cdot \texttt{sign}(U_{t_n})
+    u_t = \alpha\, (u_x^2+u_y^2)^{1/2} f_p(\mathbf{x}) + (1-\alpha)\, \frac{u_{xx} u_y^2- 2u_{xy}u_xu_y + u_{yy}u_x^2}{(u_x^2+u_y^2)^{1/2}}.
+    \label{eq:general-model-operators}
 \end{equation}
+We see from \eqref{eq:general-model-operators} that it is easy to switch between the different models by changing $f_p$.
+
+From now on, when we discuss the discretization of the higher dimensional level set function, we will denote it as $U_{i, j}^{n} = u(x_j, y_i, t_n)$. 
 
 
-Why is it not so smart to find distance function to the iso-contour and multiply with sign-function?
-In that case we must find the actual contourline explicitly. In the case of plt.contour, we only have 
-points or line segments, which means that we loose information. We linearise the contour and thus, we change the zero iso-contour which we do not want.
 
-\section{Time Discretization}
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\input{chapters/implementation/imp-distancefunc}
+\input{chapters/implementation/imp-signfunction}
+\input{chapters/implementation/imp-reinitialization}
+\input{chapters/implementation/imp-datastructures}
+\input{chapters/implementation/imp-mainalg}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\input{chapters/implementation/imp-signfunc}
+%\input{chapters/implementation/imp-initialization}
+%\input{chapters/implementation/imp-time-integration}
+%\input{chapters/implementation/imp-stopping-criterion}
+
+
+
+
+%\input{chapters/implementation/imp-space}
+%\input{chapters/implementation/imp-time}
+
+%\input{chapters/implementation/imp-signed-dist}
+%\input{chapters/implementation/imp-signfunc}
 

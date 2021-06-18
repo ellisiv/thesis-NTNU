@@ -1,0 +1,52 @@
+\chapter{Modeling}\label{chap:modeling}
+We have now introduced the general level set method with curvature- and distance-dependent flow. There were no mentions of how the velocity function should look like to model a curve approximating a set of points, as is the objective of this thesis. Nevertheless, we have seen that if we can describe the desired properties of our curve through an energy function, we can move the curve in the steepest descent direction and thus approach an optimal curve with respect to the defined properties using the gradient flow formulation.
+
+This chapter is about formulating reasonable energy functions and combining the gradient flow theory with the level set method to obtain a complete initial value problem. Given an arbitrary initial curve, the derived models should transform it into a curve approximating given data points while having minimal curvature.
+
+We saw in \secref{sec:shape-derivatives}, that the resulting velocity function \eqref{eq:optimal-descent} is given by the functions $f(\mathbf{x})$ and $g(\mathbf{x})$ and defining these functions is the modeling aspect of the problem. For our situation, we want a curve as close as possible to a set of points while having low curvature. Thus we need to define the functions $f(\mathbf{x})$ and $g(\mathbf{x})$ to be measures of distance and curvature. In general, a minimal curve has the property of having zero mean curvature \cite{meancurv}. Thus we define $g(\mathbf{x})=1$.
+
+We will now introduce three models with different choices of distance-dependent velocity functions $f_p(\distanceVm)$, $p=1,2,3$. The resulting energy function will also 
+contain a weighting parameter $\alpha \in [0, 1]$ such that the models can be adjusted depending on how smooth the solution should be. The energy function is defined as
+\begin{equation}
+    E(\Omega) = \alpha \int_{\Omega} f(d(\mathbf{x}; \pointsetm)) \diff \Omega + (1-\alpha) \int_{\partial \Omega} 1 dS.
+\end{equation}
+We remember from the introduction to gradient flow, that we want to minimize the energy function. We observe already now that if $f(d(\mathbf{x}; \pointsetm))>0$ for all $\mathbf{x}$, this energy function will have to be positive everywhere and the optimal curve will be the trivial zero solution $\curvem = \partial \Omega = \emptyset$. This is thus something we need to be aware of when constructing appropriate measures of distance $f_p(\distanceVm)$.
+
+Now, as presented in \secref{sec:shape-derivatives}, we minimize the potential energy function using gradient flow, and for that, we need to find the gradient of $E$, $\diff E$. We apply the differentiation formulas \eqref{eq:J1-der} and \eqref{eq:J2-der} from \secref{sec:shape-derivatives} for the two terms of $E$. The resulting derivative is then
+
+\begin{equation}
+    \diff E = \int_{\Gamma} \big(\alpha f(d(\mathbf{x}; \pointsetm)) + (1-\alpha)\kappa(u) (\vv{v}(t) \cdot \vv{n}_{\Gamma})\big) \diff S
+\end{equation}
+
+Going in the direction of negative directional derivative means moving the curve with speed $\Gamma_t$ defined in \eqref{eq:optimal-descent}, which inserted for $f$ and $g$ is
+\begin{equation}
+    v_n = (\alpha \, f(d(\mathbf{x};\pointsetm)) + (1-\alpha)\, \kappa(u)).
+    \label{eq:general-normal-velocity}
+\end{equation}
+
+The resulting level set model for a curve minimizing a function of the distance to a point set while minimizing the mean curvature is thus \eqref{eq:general-normal-velocity} inserted into \eqref{eq:general-level-set}. \\
+\newline
+\begin{tcolorbox}[title=Generalized level set model]
+\begin{equation}
+    u_t = |\nabla u|(\alpha \, f(d(\mathbf{x};\pointsetm)) + (1-\alpha)\, \kappa(u)).
+    \label{eq:general-model-pde}
+\end{equation} 
+\end{tcolorbox}
+
+In the following, we will introduce the three distance-dependent functions, and we will for all perform some one-dimensional analysis to get a grasp of the theoretical behavior of the models.
+
+
+
+
+
+
+\clearpage
+\input{chapters/Modeling/model1}
+
+\input{chapters/Modeling/analytical-curvature-example}
+\input{chapters/Modeling/model2}
+\input{chapters/Modeling/model3}
+
+
+
+\clearpage

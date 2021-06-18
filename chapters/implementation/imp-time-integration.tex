@@ -1,0 +1,28 @@
+\section{Time Integration and Spatial Discretization}
+The time integration step is the part where we integrate our partial differential equation to evolve forward in time. In order to do so, we need a numerical ODE solver for the time integration and we need to discretize the spatial differential operators.
+
+We begin with the discretization of the spatial operators. First note that we have shown in \secref{sec:levelset-methods} that the curvature $\kappa(u)$ in \eqref{eq:our-model-restated} can be written in terms of the spatial derivatives of $u$ as 
+\begin{equation*}
+    \kappa(u) = \frac{u_{xx} u_y^2- 2u_{xy}u_xu_y + u_{yy}u_x^2}{(u_x^2+u_y^2)^{3/2}}.
+\end{equation*}
+Also note that the absolute value of the gradient of u from \eqref{eq:our-model-restated} is in two dimensions written as 
+\begin{equation*}
+    |\nabla u| = (u_x^2+u_y^2)^{1/2}.
+\end{equation*}
+Because our distance dependent function $f(\distanceVm)$ is purely a function of the distance function and not dependent of $u$, we can write the PDE for the general model \eqref{eq:our-model-restated} as
+
+\begin{equation}
+    u_t = \alpha\, (u_x^2+u_y^2)^{1/2} f(\distanceVm) + (1-\alpha)\, \frac{u_{xx} u_y^2- 2u_{xy}u_xu_y + u_{yy}u_x^2}{(u_x^2+u_y^2)^{1/2}}.
+\end{equation}
+
+The curvature term makes the equation parabolic and thus a straight forward approach is to discretize the derivatives using a central difference approximation. These can be found in the Appendix \todo{Legg inn og referer}. 
+
+Now, what is left is solving the resulting ODE with respect to time. In our implementation, we have used a simple forward Euler scheme which means that the time steps bounded by the CFL-condition can be as small as 
+
+
+\begin{equation}
+    \Delta t \leq \frac{1}{2} h^2
+\end{equation}
+\todo{Dette kan ikke stå sånn. Enten må man gjøre mere analyse, eller gi en vagere advarsel om /stabilitet.}
+
+\clearpage

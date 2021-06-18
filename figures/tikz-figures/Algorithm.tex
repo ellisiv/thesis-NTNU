@@ -1,0 +1,20 @@
+
+\tikzstyle{process} = [rectangle, rounded corners,minimum width=4cm, minimum height=1cm, text centered, draw=black, fill=ntnublue!50]
+\begin{tikzpicture}[thick, node distance=4cm and 0.1cm]
+    \node (init) [process] {\textbf{Initialization}};
+    \node (onestep) [process, below left=1cm and -1cm of init] {\textbf{Time integration}};
+    \node (signcheck) [process, left=1cm of onestep] {\textbf{Update} $\sigma(\mathbf{x}, t)$};
+    \node (reinit) [process, below left=1.5cm and 2cm of onestep] {\textbf{Reinitialization}};
+    \node (stopcheck) [process, align=center, above left=1.5cm and 2cm of onestep] {\textbf{Stopping criterion}}; 
+    \node (convergence) [above of=stopcheck, node distance=2cm] {Convergence};
+    \node (s) [above right=.45cm and -0.1cm of signcheck] {$s$ steps};
+    
+    \draw [-{Latex[width=2mm]}] (init) to [out=270,in=0] (onestep);
+    \draw [-{Latex[width=2mm]}] (onestep) to [out=210,in=330] (signcheck);
+    \draw [-{Latex[width=2mm]}] (signcheck) to [out=30,in=150]  (onestep);
+    \draw [-{Latex[width=2mm]}] (onestep) to [out=270,in=0] (reinit);
+    \draw [-{Latex[width=2mm]}] (reinit) to [out=180,in=180, looseness=1.2] (stopcheck);
+    \draw [-{Latex[width=2mm]}] (stopcheck) to [out=0,in=90] (onestep);
+    \draw [-{Latex[width=2mm]}] (stopcheck) to [out=90, in=270] (convergence) ;
+
+\end{tikzpicture}

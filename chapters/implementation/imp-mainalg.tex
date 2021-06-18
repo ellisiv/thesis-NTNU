@@ -1,0 +1,24 @@
+\section{The Main Algorithm} \label{sec:main-alg}
+Now that we have explored the important parts of the code base, we will put it all together and present the structure of the main algorithm and how the small pieces fit together. We see in \figref{fig:flow-algorithm} a flow chart displaying the overall flow of the algorithm. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/tikz-figures/Algorithm.tex}
+    \caption[Algorithm - overview]{Caption}
+    \label{fig:flow-algorithm}
+\end{figure}
+
+In the $\texttt{Initialization}$, we set up the grid, calculate the distance function \distanceV, set up the sample points with a corresponding initial sign and find their respective cohorts. To assign all grid points to a cohort, we loop through all grid points to find the closest sample point. This is easily combined with Algorithm \ref{alg:direct-distance}, and thus we do not use the Fast Marching Method in the initialization. This procedure is only done once, and thus, we tolerate that it is not as efficient. 
+
+Moving on to the \textit{Time integration} in \figref{fig:flow-algorithm}, we remember that our time integrator is an Explicit Euler method which is a one-step method. We perform $s$ time integration steps, where at all steps, the sign function needs to be updated. After $s$ steps, the shape of the higher dimensional function may be deviating so much from a signed distance function that we reinitialize to obtain once more a $U^n$ that satisfies $\|\nabla U\|=1$.
+
+Because $U^n$ is now exclusively decided by the zero level set curve, this is the perfect place to propose a stopping criterion to check for convergence. We have reached the stationary solution when the zero level set curve $\Gamma^n$ is equal to $\Gamma^{n-1}$ and when $U$ is a signed distance function, this corresponds to $U^n$ equal to $U^{n-1}$. Thus a stopping criterion could be to stop if 
+\begin{equation}
+    \|U^n - U^{n-s}\|_2 < \varepsilon,
+    \label{eq:stopping-criterion}
+\end{equation}
+for some $\varepsilon>0$.
+
+Note that, as we remember from the analysis of the circular examples for model 2 and model 3, what looked like a stationary solution, actually had a non-zero speed. However, because of the sign change at the radius of the point set, the curve stopped moving in the analytical streamline figures, see \figref{fig:total-streamline-inverse} and \figref{fig:total-streamline-arctan}. When we move with finite time steps, the non-zero speed will cause the curve to oscillate around the radius of the point set. This kind of behavior could result in a curve that looks stationary over time but never actually trigger the stopping criterion.
+
+The value of $s$, meaning the number of time steps between reinitializations, could vary from problem to problem. It depends on how big the velocity of each level curve is and how big of a time step we use. A rule of thumb is to reinitialize too frequently rather than too seldom. The only drawback to reinitializing too often is that it slows down the total runtime.

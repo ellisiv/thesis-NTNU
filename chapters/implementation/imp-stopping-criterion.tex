@@ -1,0 +1,33 @@
+\section{A Stopping Criterion}
+It has already been mentioned in \chapref{chap:modeling}, that the PDE only has a local stationary solution at the curve. Thus, a stopping criterion can not be dependent on the global shape of the higher dimensional function, \uxt, but only its zero level curve \curve. 
+
+Because the curve is only tracked implicitly, we do not know the localization of the curve directly on the grid, but it needs to be approximated from the values of \uxt on the grid points. In python, there is a function in the matplotlib package called $\texttt{contour}()$ which given the grid and grid values of $U$ and the value for the desired level curve(s) returns an object of contour sets which also contains a list of coordinates where the level curves crosses the grid lines.
+
+Note that this can also be implemented manually by finding all pairs of grid points where the higher dimensional function changes sign and do a linear interpolation to find the approximate coordinate of crossing. 
+
+Given a list of coordinates where the zero level curve crosses the grid lines, a stopping criterion can be implemented by comparing the most recent zero level curve list with the one from the previous time step. A first check can be to compare the size of the lists, and if it does, then compute for example the Eucledian distance between them. 
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\texttt{import matplotlib.pyplot as plt} \;
+$\texttt{continue} = \texttt{True}$ \;
+$\texttt{coords}_t = \texttt{Array} \{(x_i, y_i) \text{ for } (x, y)\in \Gamma_t \}$ \;
+
+
+
+$\texttt{contour\_curves} = \texttt{plt.contour}(X, Y, U_t, levels=[0])$ \;
+
+\For{$\texttt{contour} \in \texttt{contour\_curves}$}{
+    $\texttt{coords}_{t+1} = \texttt{contour}.\texttt{collections.get\_paths().vertices}$ \;
+}
+\If{$\texttt{shape}(\texttt{coords}_{t+1}) == \texttt{shape}(\texttt{coords}_{t})$}{
+    \If{$\|\texttt{coords}_{t+1} - \texttt{coords}_t\|_2 \leq \epsilon$}{
+    $\texttt{continue} = \texttt{False}$ \;
+    }
+}
+\KwResult{\texttt{continue}}
+ \caption{Stopping criterion}
+\label{alg:stopping-criterion}
+\end{algorithm}
+
+\clearpage

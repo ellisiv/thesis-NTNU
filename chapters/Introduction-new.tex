@@ -1,0 +1,25 @@
+\chapter{Introduction}
+Shape reconstruction from irregular, sampled data is a challenging problem because we often have little a priori knowledge about the solution. The concept of shape reconstruction is necessary if a surface can not be observed explicitly, such as medical imaging, cartography, computer graphics. The surface is only observed by pointwise measurements, which can contain noise, and the connections between the data points are unknown. There are generally two ways of approaching the problem. One is first to try to find the connections between the points, using, for example, Veroni diagrams, Delaunay triangulations \cite{delauny} \cite{veronitri} \cite{KNN}, and from that information construct a surface from the connected data points. Finding the right connections is very important but could be challenging, especially when the data contains noise. Gaussian Process Regression has also been applied successfully, especially for noisy data sets \cite{GP-MPU}.
+
+We have based this thesis on an implicit approach, which does not attempt to find any pattern or connections in the data. Instead of using computations on pre-processing to find the optimal structure between the sampled data, we define a PDE formulation, where we make an initial guess, which we gradually improve with respect to some defined parameters. The curve is tracked non-parametric, which provides topological flexibility such as splitting and merging of surfaces and is independent of global parametrizations of the curve. The implicit method applied in this thesis is the level set method, which describes the curve through a zero level set of a higher dimensional function. 
+
+Level set methods were first introduced by S. Osher and S.A. Sethian \cite{Osher-Sethian} in 1988 for tracking surfaces moving with curvature-dependent speed. Many have used this paper as a stepping stone and applied level set methods to a variety of physical applications like multiphase phase flow \cite{SUSSMAN1994146} \cite{ZHAO1996179}, crystal growth \cite{sethian1999level} and in image applications like image enhancement and noise reduction \cite{sethian1999level} \cite{RUDIN1992259} and shape detection \cite{368173} \cite{sethian1999level} \cite{5754584} among other things.
+
+The paper that inspired this thesis was published by A. Claisse and P. Frey in their paper from 2011\cite{Claisse-Frey}, applying the level set method to approximate a set of points while providing surfaces with low curvature. To explain shortly, this is accomplished by moving the curve with speed dependent on the distance from the curve to the sampled points and the curvature of the curve.
+
+The underlying application that motivated the topic of surface reconstruction for the team working on this problem was estimation of bedrock topography. This is a shape reconstruction problem, where there are taken samples of the sediment thickness, and from these measurements, we want the best possible approximation of the total bedrock topography. The bedrock can thus only be observed implicitly, and we have little a priori knowledge about the connectivity between samples or the overall topology.
+
+This thesis is mainly a background study on level set methods in general and how they can be used to formulate mathematical models to gradually deform a curve over time to obtain a stationary curve with some specified qualities. We have thus detached ourselves from the specific bedrock problem and simplified from a two-dimensional surface problem to a one-dimensional curve reconstruction problem.
+
+This thesis is mainly about using the general level set formulation to approximate sets of points in different arrangements by formulating appropriate velocity functions to move the curve appropriately. 
+
+The thesis thus begins with a chapter on the needed background theory in \chapref{chap:background-theory}. It focuses on general level set methods and how to construct velocity functions to deform a curve. 
+
+\chapref{chap:modeling} applies the general theory to the application of point sets and attempts to formulate three reasonable velocity functions. In addition, we perform some theoretical analysis on a special one-dimensional case to get a feeling of the behavior of the resulting models. 
+
+In \chapref{chap:implementation}, we describe how these models have been implemented numerically and discuss some of the complications tied to the practical implementation.
+
+The last part is the presentation of the numerical results in \chapref{chap:results}, which discusses how the results corresponds to the theoretical analysis and how to adjust the presented models to obtain certain curves. 
+
+
+

@@ -1,0 +1,64 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newpage
+The derivation showed that we can model a curve moving with a speed $v_n$ that could also be a function of the shape of the curve through the curvature and a distance function to an object using the level set equation \eqref{eq:general-level-set}. The velocity is here not specified, and since it is what describes the motion of the curve, we must choose a velocity such that the curve is moving as we would like.
+
+In our situation, the movement of the curve over time is not the main focus, but getting a final curve that fits our sampled data while still being smooth without to much variation. This final curve will be obtained when $u_t=0$ in \eqref{eq:general-level-set} for $u=0$. Meaning that the curve itself is stationary. 
+
+This chapter will focus on obtaining velocity functions that will yield stationary curves that fits our data points well. In order to do so, we must define mathematically what describes such a curve. Describing what we want to obtain and design the PDE to fit the requirements is the modeling section of the problem. We will for all models we present, introduce the mathematical reasoning behind the model and some simple analysis of the methods concerning the behavior over time and stationary solution.
+
+In order to derive our models, we reformulate our problem as a minimization problem, with the goal of minimizing the distance from our curve to our point set while at the same time minimizing the curve length. We define two functions quantifying the distance and length property for our curve, and try look for a weighted minimum of the two functions. 
+
+We use the notation from \secref{sec:levelset-methods} where we have a domain $\Omega(t)\in \realspacem^2$, bounded by our zero level set curve, \curve. We define our first functional $J_1(\Omega)$ quantifying the distance \textbf{[\dots]} \todo{gir dette noen mening uten sigma? Eneste grunnen til at man integrerer over hele er for å unngå nullpunkt når kurva forsvinner}
+
+\begin{equation}
+    J_1(\Omega) = \int_{\Omega} f(d(\mathbf{x};\pointsetm)) \diff \Omega
+    \label{eq:minimization-j1}
+\end{equation}
+The second functional quantifies the length of the curve
+\begin{equation}
+    J_2(\Omega) = \int_{\partial \Omega} 1 \diff S.
+    \label{eq:minimization-j2}
+\end{equation}
+
+The weighted function of \eqref{eq:minimization-j1} and \eqref{eq:minimization-j2} is thus defined as the convex combination
+\begin{equation}
+    J(\Omega) = \alpha J_1(\Omega) + (1-\alpha) J_2(\Omega).
+    \label{eq:total-minimization-j}
+\end{equation}
+
+We use the \textit{gradient flow} optimization technique to approach the minima of these functionals. Gradient flow is the continuous variant of the well known gradient descent technique. This is a typical greedy algorithm where we approach the minimum of a function by going in the steepest descent direction, which is the direction of negative gradient. In the continuous framework, this will translate to having a velocity defined by the negative gradient. Hence, if we want a weighted minima of \eqref{eq:minimization-j1} and \eqref{eq:minimization-j2}, the curve, \curve, at a point $\mathbf{x}$ must move with a velocity
+\begin{equation}
+    v(\mathbf{x}) = - J'(\Omega) = -\big(\alpha \, J_1'(\Omega) + (1-\alpha)\, J_2' (\Omega) \big)
+    \label{eq:gradient-flow}
+\end{equation}
+
+The derivatives in \eqref{eq:gradient-flow} are shape derivatives, called \textit{Fréchet derivatives} and is defined by 
+\begin{equation*}
+    J'(\Omega) =     .
+\end{equation*}
+This quantifies the change in the integrals in \eqref{eq:total-minimization-j} when a fixed domain $\tilde{\Omega}$ is perturbed by a small shape transformation $\theta(\mathbf{x})$, with a mapping $(\tilde{\Omega})\to (\tilde{\Omega} + \theta)$. When this transformation is sufficiently small, it is a diffeomorphism, meaning that the function $J(\Omega)$ is locally differentiable at $\tilde{\Omega}$. \todo{ref! Diffeomorphism betyr at liten endring i omega gir bounded endring i J?} 
+
+*Utfør selve deriveringen her omtrent*
+
+\begin{equation}
+    J'(\tilde{\Omega}) = \int_{\partial \tilde{\Omega}} \dots
+    \label{eq:gradient-velocity}
+\end{equation}
+
+And thus the velocity at the curve will move with a speed 
+\begin{equation}
+    \vv{v}(\Gamma) = -\vv{n}_{\Gamma} (\alpha \, f(d(\mathbf{x};\pointsetm)_{\mathbf{x}\in \Gamma}) + (1-\alpha)\, \kappa(\mathbf{x})_{\mathbf{x}\in \Gamma}).
+\end{equation}
+This immediately gives us a normal velocity $v_n = -(\alpha \, f(d(\mathbf{x};\pointsetm)_{\mathbf{x}\in \Gamma}) + (1-\alpha)\, \kappa(\mathbf{x})_{\mathbf{x}\in \Gamma})$
+Hence we end up with a level set model depending on a general functional $f(d(\mathbf{x}; \pointsetm))$ governing the motion of a curve, \curve, by inserting the normal velocity into the general level set equation \eqref{eq:general-level-set}
+
+\begin{tcolorbox}[title=General level set model]
+\begin{equation}
+    u_t = |\nabla u|(\alpha \, f(d(\mathbf{x};\pointsetm)) + (1-\alpha)\, \kappa(u)).
+    \label{eq:model1-pde}
+\end{equation} 
+\end{tcolorbox}
+
+The following sections will focus on different choices of the attraction functional $J_1(\Omega)$ and how this will affect the motion and stationary solution for the curve.
+\clearpage
+\section{Model 1} \todo{gi den et navn?}

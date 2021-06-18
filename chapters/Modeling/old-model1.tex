@@ -1,0 +1,92 @@
+
+To derive the resulting curve velocity, we refresh the notation from \secref{sec:levelset-methods}. We have a domain, $\Omega(t) \subset \realspacem^2$, which is bounded by the zero level curve, $\Gamma(t)$. We define two functions, $J_1(\Omega)$ and $J_2(\Omega)$, which quantifies respectively the distance from $\partial \Omega(t)=\Gamma(t)$ to the point set, \pointset, and the curve length.
+
+\begin{align}
+    J_1(\Omega(t)) &= \int_{\Omega}\sigma(x, t)d(x) dx, \label{eq:J1}\\
+    J_2(\Omega(t)) &= \int_{\partial \Omega(t)}1 dS.\label{eq:J2}
+\end{align}
+
+The function measuring the distance must have a minimum in a curve going through all the points in the point set. The equation \eqref{eq:J1} is obviously zero when $\partial \Omega=\Gamma=\emptyset$, and in order to avoid this as a global minima, we multiply with a sign function $\sigma(x, t)$ which works in the following way. When the curve is surrounding all the points, or in other words outside the point set, $\sigma=1$, and conversely, when the curve is placed on the inside, $\sigma=-1$.
+
+In order to get an intuition for this sign function, we present an example where the point set is sampled from a perfect circle \todo{forklar så mye du må om sigma}
+
+We see that $J_2$ approaches a minima when the boundary of $\Omega$, which is the zero level curve, shrinks to zero length. Thus, the functions $J_1$ and $J_2$ do not have a shared minimum. What we then do is to define a weighted sum $J = \alpha J_1 + (1-\alpha) J_2$ which inserting \eqref{eq:J1} and \eqref{eq:J2} is
+\begin{equation}
+    J(\Omega) = \alpha \int_{\Omega_f}\sigma d \diff x + (1-\alpha) \int_{\Gamma_f} 1 \diff S.
+    \label{eq:model1-energyfunc}
+\end{equation}
+The parameter $\alpha$ decides the weighting of the distance compared to the curve length. Because the two terms in the weighting have different minima, the parameter $\alpha$ will also be an important factor in the total minimum of $J$.
+
+We will now approach this minimization problem using the idea of \textit{gradient flow}. Gradient flow is the continuous version of the well known gradient descent algorithm, where we approach the minima by going in the direction of the steepest descent. The continuous version is thus that the curve is flowing in a continuous velocity field which is defined by the negative gradient. \todo{ref?} We thus find the gradient of \eqref{eq:model1-energyfunc} which in our case is the shape derivative. A minimum, either a local or global is obtained when this gradient is zero. 
+
+\todo{Deriveringen Anne viste deg her.}
+
+\begin{equation}
+    \implies J'(\Omega) = ...
+\end{equation}
+
+Thus the velocity in the negative gradient direction is
+\begin{equation}
+    v(x) = v_n \cdot n = -(\alpha\sigma(x) d(x) + (1-\alpha) \kappa(x))\cdot n(x).
+    \label{eq:model1-velocity}
+\end{equation}
+Inserting this velocity function, $v_n$, into the general level set equation \eqref{eq:general-level-set}, we obtain 
+
+\begin{tcolorbox}[title=Model 1]
+\begin{equation}
+    u_t = |\nabla u|(\alpha\sigma(x) d(x) + (1-\alpha) \kappa(x))
+    \label{eq:model1-pde}
+\end{equation} 
+\end{tcolorbox}
+
+
+
+
+
+
+
+
+
+
+
+
+We observe that the resulting velocity for the zero level curve is dependent on both the distance and the curvature. 
+
+What we already now can observe from the function \eqref{eq:model1-energyfunc} is that we get no local minima when the curve is covering the point set. This is shown easily in a circular example, where our sample points are located in a circle with radius $r_v$ with such a high density that the distance function applied to the point set is approximately the distance function applied to the continuous circle. 
+
+Then the function $J$ is easily calculated, because the integral over the disc with radius $r$ is equal to $\pi r^2$ and the circumference is $2\pi r$. For a domain $\Omega$ bounded by a circle with radius $r$ with the same center as the point set, the domain, and thus the function $J$ is simply a function of $r$.
+
+\begin{equation*}
+    J(r) = \alpha \int_0^{r} \texttt{sgn}\{\tilde{r}-r_v\} (\tilde{r}-r_v) 2\pi \tilde{r} \diff \tilde{r} + (1-\alpha)\cdot 2\pi r 
+\end{equation*}
+\begin{equation}
+    J(r) = \begin{cases}
+        2\pi \alpha \bigg( \frac{r^3}{3}- \frac{r^2 r_v}{2} \bigg) + 2\pi (1-\alpha) r &\qquad \text{if } r\leq r_v\\
+        \frac{2\pi \alpha r_v^3}{3} + 2\pi \alpha \bigg( \frac{r^3}{3}- \frac{r^2 r_v}{2} \bigg) + (1-\alpha) 2\pi r &\qquad \text{if } r>r_v
+        \end{cases}
+    \label{eq:J-rad}
+\end{equation}
+
+We see this function displayed in \figref{fig:minimization-model1} for $\alpha=0.85$ and $r_v=1$. Here we also see that the function $J(r)$ indeed has a global minimum, but that it is located inside the point set. 
+
+We keep to this circular example for a while, because it reduces our complex two-dimensional problem down to just a function of $r$. We now see that in this setting, our partial differential equation behaves like a hyperbolic conservation law, and we can find the characteristic lines for the radius of our zero level curve.
+
+\begin{comment}
+\begin{figure}
+    \begin{subfigure}[b]{0.48\linewidth}
+    \centering
+        \includegraphics[width=\linewidth]{figures/Model-1/sigma-pos.tex}
+        \caption{Cap} 
+        \label{fig:sigma-pos}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.48\linewidth}
+    \centering
+        \includegraphics[width=\linewidth]{figures/Model-1/sigma-neg.tex}
+        \caption{Cap} 
+        \label{fig:sigma-neg} 
+    \end{subfigure} 
+    \caption{Caption}
+    \label{fig:sigma-function}
+\end{figure}
+
+\end{comment}

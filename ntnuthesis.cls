@@ -151,7 +151,10 @@
 \RequirePackage{geometry}                   % page layout
 \RequirePackage{enumitem}                   % customising list appearance
 \RequirePackage{graphicx}                   % including figures
+\RequirePackage{subcaption}                 % Captions in self-made subfigures
+\RequirePackage{wrapfig}                    % Figures wrapped in text
 \RequirePackage{amsmath}                    % advanced math typesetting
+\RequirePackage{mathtools}                  % curly brackets under equation
 \RequirePackage{amsthm}                     % proofs and theorems
 \RequirePackage{comment}                    % comment large blocks of text
 \RequirePackage[                            % subfigures with captions within figures
@@ -185,6 +188,7 @@
 \newcommand\figref{Figure~\ref}
 \newcommand\secref{Section~\ref}
 \newcommand\chapref{Chapter~\ref}
+\newcommand\algref{Algorithm~\ref}
 \ifcapitalize
     \RequirePackage[capitalize,noabbrev]{cleveref}   % automatic cross references
 \else
@@ -202,6 +206,11 @@
 \RequirePackage{tikz}
 \usetikzlibrary{hobby} 
 \usetikzlibrary{backgrounds}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{calc}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.14}
 
 %% CUSTOMISATION
 
@@ -226,12 +235,12 @@
 }
 
 % Add unnumbered chapters to table of contents and headings
-\let\std@schapter\@schapter
-\def\@schapter#1{
-    \std@schapter{#1}
-    \addcontentsline{toc}{chapter}{#1}
-    \def\ch@ptermark{#1}
-}
+%\let\std@schapter\@schapter
+%\def\@schapter#1{
+%    \std@schapter{#1}
+%    \addcontentsline{toc}{chapter}{#1}
+%    \def\ch@ptermark{#1}
+%}
 
 % Dotted line and tighter vertical spacing for chapters in the table of contents
 \def\l@chapter#1#2{\@dottedtocline{1}{0em}{1.5em}{\bf #1}{\bf #2}}
@@ -281,7 +290,18 @@
 \preto\fullcite{\AtNextCite{\defcounter{maxnames}{99}}}
 
 % Colour palette
-\definecolor{thesisblue}{rgb}{.15, .15, .6}
+\definecolor{thesisblue}{HTML}{00509e}
+\definecolor{ntnublue}{HTML}{6096d0}
+\definecolor{ntnugreen}{HTML}{bcd025}
+\definecolor{ntnuorange}{HTML}{ef8114}
+\definecolor{ntnupink}{HTML}{b01b81}
+\definecolor{ntnuyellow}{HTML}{f7d019}
+\definecolor{ntnupurple}{HTML}{482776}
+\definecolor{ntnuturquoise}{HTML}{3cbfbe}
+\definecolor{ntnubeige}{HTML}{cfb887}
+\definecolor{ntnubeigelight}{HTML}{eee5d5}
+
+
 \definecolor{thesisred}{rgb}{.4, .05, .15}
 \definecolor{thesisgreen}{rgb}{.2, .3, .2}
 
@@ -333,6 +353,23 @@
 
 
 %Specific commands/shortcuts for thesis
+
+%Algorithms
+\RequirePackage[ruled,vlined]{algorithm2e}
+
+%Box for important stuff
+\usepackage{tcolorbox}
+\tcbset{colback=ntnublue!5,colframe=ntnublue!75!black, before=, after=\hfill, 
+  before upper={\setlength{\parindent}{0em}%
+                \everypar{{\setbox0\lastbox}\@minipagefalse\everypar{}}}
+}
+
+
+\newcommand{\pluseq}{\mathrel{+}=}
+\newcommand{\multeq}{\mathrel{*}=}
+\newcommand{\minuseq}{\mathrel{-}=}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
 %Difference scheme
 \newcommand{\Uij}{\ensuremath{U_{i, j}^n}}
 \newcommand{\Uipj}{\ensuremath{U_{i+1, j}^n}}
@@ -344,7 +381,37 @@
 \newcommand{\Uinjp}{\ensuremath{U_{i-1, j+1}^n}}
 \newcommand{\Uipjn}{\ensuremath{U_{i+1, j-1}^n}}
 
-\newcommand{\uxt}{$u(\mathbf{x}, t)$ }          % u(x, t)
-\newcommand{\domain}{$\mathcal{D}$ }            % Computational domain
-\newcommand{\velocityfield}{$\vv{v}$}           % velocity field
+\newcommand{\uxt}{$u(\mathbf{x}, t)$}          % u(x, t)
+\newcommand{\uxtm}{u(\mathbf{x}, t)}
+\newcommand{\domain}{$\mathcal{D}$}            % Computational domain
+\newcommand{\domainm}{\mathcal{D}}
+\newcommand{\velocityfield}{$\vv{v}(\textbf{x}, t)$}           % velocity field
+\newcommand{\velocityfieldm}{\vv{v}(\textbf{x}, t)}
 \newcommand{\pointset}{$\mathcal{V}$}           % Our point set
+\newcommand{\pointsetm}{\mathcal{V}}
+\newcommand{\realspace}{\mathbb{R}}             % Real space
+\newcommand{\realspacem}{\mathbb{R}}
+\newcommand{\signfunction}{$\sigma (\mathbf{x}, t)$}
+\newcommand{\signfunctionm}{\sigma (\mathbf{x}, t)}
+\newcommand*\diff{\mathop{}\!\mathrm{d}}
+\newcommand*\Diff[1]{\mathop{}\!\mathrm{d^#1}}
+
+\newcommand{\curve}{$\Gamma (t)$}            % Curve
+\newcommand{\curvem}{\Gamma (t)}
+\newcommand{\distanceV}{$d(\textbf{x};\mathcal{V})$} %Distance to point set
+\newcommand{\distanceVm}{d(\textbf{x};\mathcal{V})}
+\newcommand{\signeddistance}{$u_d(\textbf{x}, \curvem)$} %signed distance to curve
+\newcommand{\signeddistancem}{u_d(\textbf{x}; \curvem)}
+\newcommand{\sigmaxt}{$\sigma(\mathbf{x}, t)$}
+\newcommand{\sigmaxtm}{\sigma(\mathbf{x}, t)}
+\newcommand{\radgamma}{$r_{\Gamma}(t)$}
+\newcommand{\radgammam}{r_{\Gamma}(t)}
+
+
+\newcommand{\mainEquation}{
+    \begin{equation}
+        u_t = \big[\alpha \sigma (\mathbf{x}, t) d(\mathbf{x};\pointsetm) + (1-\alpha) \kappa(u) \big]|\nabla u|
+    \end{equation}
+}
+
+%\usepackage{morewrites}

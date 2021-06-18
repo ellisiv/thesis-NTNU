@@ -1,0 +1,16 @@
+\begin{tikzpicture}
+    \begin{axis}[
+          trig format plots=rad,
+          xmin=-2,
+          xmax=2,
+          ymin=-1.7,
+          ymax=1.5]
+    \addplot[domain=0:2, samples=20, black] ({x}, {x-1.5});
+    \addplot[domain=0:2, samples=20, black] ({-x}, {x-1.5});
+    \addplot[domain=-2:2, samples=20, thesisblue] ({x}, {0});
+    
+    \addplot+[thesisblue, only marks,mark size=0.05cm, mark=*] plot coordinates {(-1,0) (1, 0)};
+    \node [coordinate,pin=above:{$v_1$}] at (axis cs:-1,0) {};
+    \node [coordinate,pin=above:{$v_2$}] at (axis cs:1,0) {};
+    \end{axis}
+\end{tikzpicture}

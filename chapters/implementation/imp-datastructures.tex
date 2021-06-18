@@ -1,0 +1,40 @@
+\section{Updating the sign function, \texorpdfstring{$\sigma (\mathbf{x}, t)$}{sigma}} \label{sec:data-struc}
+Whether\todo{Se på denne overskrifta. Det funker ikke helt} or not the sign function should be updated is given by the sign of $U^n$ at the points $\mathbf{v}\in\pointsetm$. Thus, we have chosen to define the points in the point set as a class object where the sign is a state variable. If the state is changed, it triggers an update process for the sign function. Going back to the definition of $\sigma(\mathbf{x}, t)$, we can see that since the points $\mathbf{v}\in\pointsetm$ never move, there is no need to calculate the $\mathbf{v}_r = \texttt{argmin}(\|\mathbf{x}-\mathbf{v}\| \, \forall \, \mathbf{v} \in \pointsetm)$ more than once. 
+
+To cut down on computations, we store a list of objects $\{\mathbf{v}_r \, \forall \, \mathbf{v} \in \pointsetm\}$, where the point $\mathbf{v}_r$ stores the coordinate of the point, the sign of \uxt\ in that point, and what will be refered to as the cohort of $\mathbf{v}_r$. The cohort of $\mathbf{v}_r$ is a list of all the grid nodes $X_{i, j}$ that has $\mathbf{v}_r$ as the solution of $\mathbf{v}_r = \texttt{argmin}(\|X_{i, j}-\mathbf{v}\| \, \forall \, \mathbf{v} \in \pointsetm)$. Thus, at every iteration, when we check for updates in $\sigma(\mathbf{x}, t)$, we only need to go through the points in the point set, estimate the sign of \uxt\ at the sample points and update its cohort in stead of recalculating \eqref{eq:sigma-function} again.
+
+This structure is also the reason why we stated in \secref{sec:signfunction} that it is easy to request the single closest grid point to a point $\mathbf{v}_r \in \pointsetm$, but not the four closest. Look at \figref{fig:grid-to-point} for reference. There we have two sample points where both have at least three grid points in their cohort. If there is more than one sample point inside each cell, each sample point could have down to zero grid points in their cohort. If a point $\mathbf{v}_r$ has zero grid points in its cohort, the sign of $\mathbf{v}_r$ does not matter, and we do not need to estimate the sign. Else, we have at least one, which means we can always use Algorithm \ref{alg:bilinear-interpolation}. If the sign of $u(\mathbf{v}_r, t)$ has changed, it is easy to update $\sigma$. It is done only by changing the sign of all grid points in the cohort of $\mathbf{v}_r$.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.2\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/tikz-figures/points-cohort.tex}
+        \caption{Cohort of two neighboring sample points}
+        \label{fig:grid-to-point}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{0.7\linewidth}
+    \centering
+        \includegraphics[width=\linewidth]{figures/Implementation/punktsett-område-4-cropped-1.jpg}
+        \caption{Two different curves, $\Gamma_1$ and $\Gamma_2$. The areas are the cohorts of grid points for the three sample points.}
+        \label{fig:pointset-with-area}
+    \end{subfigure}
+    \caption[The Cohort of a Point Set]{To the left we see how the grid points are assigned to their cohorts. To the right we see that for $\Gamma_1$ the sign function $\sigma$ must be positive for all grid points. For $\Gamma_2$ on the other hand, the sign function must be negative for all the points in the upper left region, that is the cohort of the upper left sample point.}
+    \label{fig:datastruc-pointset}
+\end{figure}
+\todo{Fix (a) og placement i neste figur}
+\begin{algorithm}[H]
+\SetAlgoLined
+\For{$v \in \pointsetm$}{
+    $u(v) = \texttt{bilinear\_interpolation}(v.\texttt{closest\_point})$ \;
+    \If{$u(v) \neq v.\texttt{sign}$}{
+        $\sigma[v.\texttt{cohort}] \multeq -1$ \;
+        $v.\texttt{sign} \multeq -1$ \;
+    }
+}
+
+\KwResult{$\sigma(\mathbf{x}, t^{n})$}
+ \caption{Updating the Sign Function}
+ \label{alg:update-sigma}
+\end{algorithm}

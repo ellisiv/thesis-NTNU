@@ -1,0 +1,101 @@
+\section{Model 1}\label{sec:model-1}
+Model 1 is inspired by a model purposed by Claisse and Frey \cite{Claisse-Frey} which inspired this thesis. They introduced a distance-dependent function that were linearly dependent on an unsigned distance function to the point set. We thus look at a function
+\begin{equation*}
+    \hat{f}_1(d(\mathbf{x};\pointsetm)) = d(\mathbf{x};\pointsetm).
+    \label{eq:pure-dist-model}
+\end{equation*}
+
+As stated above, a distance dependent function which is positive everywhere would yield no optimal curve satisfying $\diff E(\Omega) = 0$ except for the trivial zero solution. Also for the attraction term defined above, we see from \eqref{eq:general-normal-velocity} that even when the curve is inside the point set, the velocity would have direction inwards. A natural choice is then to define the distance to be negative inside the point set, thus yielding a curve moving outwards when inside the point set.
+
+This brings us to an interesting question. How do we determine what is on the inside or outside of a set of points? When we discussed the signed distance function, the distance was related a closed curve which has a defined inside. When there is only points, we must be able to draw the boarder between the inside and outside in some way, which means that we must construct a closed curve from the set of points.
+
+We denote the constructed closed curve as $\mathcal{C}_\mathcal{V}$ and thus the signed distance to the curve is $u_d(\mathbf{x}; \mathcal{C}_\mathcal{V})$. Assuming then that we can construct such a curve, we define the distance dependent velocity as 
+\begin{equation}
+    \tilde{f}_1(d(\mathbf{x};\pointsetm)) = u_d(\mathbf{x}; \mathcal{C}_\mathcal{V}).
+    \label{eq:signed-dist-model}
+\end{equation}
+
+This may seem like a nice solution. Outside the curve $\mathcal{C}_\mathcal{V}$, the curve, \curve, will be pulled inwards by \eqref{eq:signed-dist-model}, and oppositely it will be pulled outwards if inside $\mathcal{C}_\mathcal{V}$. With no curvature dependent term, we would expect a final curve exactly equal $\mathcal{C}_\mathcal{V}$, and with the curvature term, one could expect a smoother but similar solution. 
+
+The problem is, that we are looking for a curve that can approximate any set of points without assumptions on the structure of the sample points. Without information about the connection between the data points, we can not construct for example a polygon from the data points, which would have been a natural choice. 
+
+Hence, because \eqref{eq:signed-dist-model} do not correspond well with the assumptions for the thesis, we approach the problem differently. With no information about the distribution of points, we go back to the unsigned distance function applied to our point set \distanceV. At all points $\mathbf{x}\in\realspacem^2$, \distanceV\ provides the distance to the closest sampled point in \pointset. Now the speed is decided by the distance to the closest point, and we want to construct a sign function $\sigma(\mathbf{x})$ that determines the direction of the speed in order to pull the curve towards its closest point without making any assumptions on the composition of the data points.
+
+To construct such a sign function, recognize that the only movement we are interested in is the movement of the zero isocontour. Thus the sign function needs only to have a reasonable sign for the values at the zero level curve. We can thus turn the problem around. Rather than figuring out if the curve is inside the point set, we detect whether or not the points in the point set is outside the zero level curve. The curve, \curve, is closed and thus has a meaningful inside and outside. In addition, by construction the sign of \uxt\ is negative inside \curve\ and oppositely positive outside as seen in \eqref{eq:interior}-\eqref{eq:exterior}. 
+
+Using this, we construct the sign function $\sigma(\mathbf{x})$ as follows. For a fixed $t=t^*$, then for every part of the curve $\Gamma(t^*)_r$, denote $\mathbf{v}_r$ as the closest sample point. Then $\sigma(\Gamma(t^*)_r) = \texttt{sgn}(u(\mathbf{v}_r, t^*))$. Because the position of the curve relative to the sample points changes over time, we construct a time dependent sign function that we extend to the entire domain \domain\ as follows:
+\begin{equation}
+    \sigma(\mathbf{x}, t) = \texttt{sgn}((u(\mathbf{v}_r, t))), \quad \mathbf{v}_r = \texttt{argmin}(\|\mathbf{x}- \mathbf{v}\|_2 \, \forall \mathbf{v} \in \pointsetm). 
+    \label{eq:sigma-def}
+\end{equation}\todo{figur av sigma som vil se ut som kakestykker}
+
+Using the above, we end up with a model that will draw the curve towards the closest sample points. The distance dependent velocity for model 1 is then defined as
+\begin{equation}
+    f_1(d(\mathbf{x};\pointsetm)) = \sigma(\mathbf{x}, t) d(\mathbf{x};\pointsetm),
+    \label{eq:model1-dist-velocity}
+\end{equation}
+yielding the full model, by inserting \eqref{eq:model1-dist-velocity} into \eqref{eq:general-model-pde}: \\
+\begin{tcolorbox}[title=Model 1]
+\begin{equation}
+    u_t = |\nabla u|(\alpha\sigma(\mathbf{x}, t) d(\mathbf{x}; \pointsetm) + (1-\alpha) \kappa(x)), \quad \alpha \in \realspacem
+    \label{eq:model1-pde}
+\end{equation} 
+\end{tcolorbox}
+
+\textbf{Remark:} The way $\sigma(\mathbf{x}, t)$ is defined in \eqref{eq:sigma-def} will violate the assumptions in Proposition \ref{prop:shape-derivative} and thus we can not find $\diff E_1$ for this choice of $f(d(\mathbf{x};\pointsetm))$ using the proposition. The sign function makes $f$ discontinuous which makes the velocity discontinuous. This was not mentioned by Claisse and Frey \cite{Claisse-Frey} in their Lemma 2.1, which as we read it must have the same issue. 
+
+As the we will see later, this does not damage the numerical results. The discretized velocity will anyways be discontinuous and thus, as long as the grid size is bounded away from zero, the discontinuity is not detectable. When the grid size is is bigger than some bounding $\epsilon>0$, one can construct a smoothing function, $\tilde{\sigma}$, connecting $\sigma=1$ and $\sigma=-1$ with a bounded derivative which is thus in $L^1$. The resulting velocity will then be continuous and for the discretization, $\sigma=\tilde{\sigma}$. This discrepancy between the theory and the model was found rather late in the process and could be something to look into for further work.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{comment}
+We see from \eqref{eq:model1-pde} that the curve will have an inward velocity dependent on the distance to the point set and the curvature. In order to draw the curve towards the point set, the sign function $\sigma$ must be positive when the curve is outside the point set. In that case the distance term is contributing to the inward velocity. 
+
+In the opposite case, when the curve is on the inside, the distance term should contribute to an outward-pointing velocity. This meaning $\sigma(\mathbf{x}, t)$ must be negative. Thus the sign function is clearly defined when the whole curve is outside or inside the point set. When parts of the curve is inside, and other parts are outside of the point set, or when it is hard to define what is outside and inside, this is more complex. 
+
+Claisse and Frey makes no mention of what is done when this is the case, other than that the sign function must be defined locally. Hence, it must be both space and time-dependent. We have made a choice regarding the sign function and decided that the value of the sign function should be dependent on whether or not the closest point in the point set is inside or outside the curve. 
+
+This in practice, means that the curve will always be attracted to the closest point in the point set, which seems like a natural choice because the distance function also is the distance to the same point. 
+\end{comment}
+\subsection{Radially Symmetric Analysis}
+We now reduce the situation down to a radially symmetric setting to perform some simplified analysis of the energy function. The setup can be viewed in \figref{fig:stationary-example}, where we have a circular curve $\Gamma(t)$ with radius \radgamma\ and center in the origin. The point set, \pointset, is also distributed in a circle around the same center and with radius $r_v$. Further more, we assume that the density of the point set is so high that we can approximate the set of point as a continuous curve denoted $\Gamma_{\mathcal{V}}$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.4\linewidth]{figures/tikz-figures/stationary-example.tex}
+    \caption[One dimensional analytical example]{A radially symmetric set up with the point set, $\Gamma_{\pointsetm}$, and curve, $\Gamma (t)$ centered around the origin with radii independent of the angle with respect to the $x$-axis.}
+    \label{fig:stationary-example}
+\end{figure}
+Because of the symmetry and the high density assumption, there will be no spatial discontinuities because the entire curve will either be inside or outside the point set. The resulting \sigmaxt\ will thus be constant in space. Now the energy function $E$ is only a function of \radgamma, and is written
+\begin{equation*}
+    E(r_{\Gamma}) = \underbrace{\alpha \int_0^{r_{\Gamma}} \texttt{sgn}\{r-r_v\} (r-r_v) 2\pi r \diff r}_\text{$E_1$} + \underbrace{(1-\alpha)\cdot 2\pi r_{\Gamma} \vphantom{ \int_0^{r_{\Gamma}}}}_\text{$E_2$}
+\end{equation*}
+\begin{equation}
+    E(r_{\Gamma}) = \begin{cases}
+        2\pi \alpha \bigg( \frac{r_{\Gamma}^3}{3}- \frac{r_{\Gamma}^2 r_v}{2} \bigg) + 2\pi (1-\alpha) r_{\Gamma} &\qquad \text{if } r_{\Gamma}\leq r_v\\
+        \frac{2\pi \alpha r_v^3}{3} + 2\pi \alpha \bigg( \frac{r_{\Gamma}^3}{3}- \frac{r_{\Gamma}^2 r_v}{2} \bigg) + (1-\alpha) 2\pi r_{\Gamma} &\qquad \text{if } r_{\Gamma}>r_v
+        \end{cases}
+    \label{eq:J-rad}
+\end{equation}
+The total energy function is displayed in \figref{fig:model-jtot} with its separate terms displayed in \figref{fig:model1-j1} for specific parameters $\alpha=0.85$ and $r_v=1$. Here, we see that the energy function does obtain a minimum besides the trivial solution and moreover it is the global minimum. Note also that it is not obtained where $\radgammam=r_v$, but inside the point set, where $\radgammam<r_v$.
+
+\begin{figure}
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/Model-1/Jis.tex}
+        \caption{The separate energy terms}
+        \label{fig:model1-j1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/Model-1/J.tex}
+        \caption{Total energy function}
+        \label{fig:model-jtot}
+    \end{subfigure}
+    \caption[Minimization problem]{The potential energy function for model 1 \eqref{eq:J-rad} in the radially symmetric situation with $\alpha=0.85$ and $r_v=1$}
+    \label{fig:minimization-model1}
+\end{figure}
+
+We stick to this radially symmetric situation, and we will see that in one dimensions, \eqref{eq:general-model-pde} is a hyperbolic conservation law.
+
+\input{chapters/Modeling/characteristics-1d}

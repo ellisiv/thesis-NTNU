@@ -1,0 +1,244 @@
+\chapter{Background Theory} \label{chap:background-theory}
+This chapter will focus on general level set methods: how to derive them and we will present some key features. In addition we include some theory on distance functions which is useful for level set methods in general, but will prove especially relevant for our application. Finally, we look at shape derivatives, or more specific, derivatives of domain integrals and how they can are utilized as a tool for modeling the level set formulation to a specific application.
+
+
+\section{Level Set Methods}\label{sec:levelset-methods}
+Before we begin, we must clarify that all derivations in this section will be performed for curves in $\realspacem^2$, but everything can be extended to surfaces in a multidimensional space $\realspacem^n$. This is simply a choice to be consistent with the modeling and implementation which is only applied to curves in this thesis.
+
+A two-dimensional level set formulation is an implicit representation of a closed curve or curves. The curve is described by a higher dimensional function by being a level curve for some constant value. We explain this concept through a familiar example for most of us, namely level curves on a map. Provided a continuous function of the ground surface elevation on an area, the level contours or curves join points on the surface of equal elevation. All curves representing the same value, or elevation in the cartographic setting, are called \textit{iso-curves} or \textit{iso-contours}. On a map, there are numerous iso-curves of different values separated by a constant height. Such contours are thus effectively describing the steepness and height, and thus the shape of the ground in the area. In a level set context, we are not interested in the shape of the underlying higher dimensional function in the same way. We look at a single iso-value, which by standard practice is the zero iso-value, which yields a curve called the \textit{zero iso-contour}. The corresponding zero iso-contour(s) will split the domain into regions of two types: one where the underlying function is positive and one where it is negative. Level set methods track the shape of these curves and how they change over time. 
+
+
+\subsection{Implicit Derivation}
+Now that we have an intuition about iso-curves, we can discuss the principle of the level set method. The goal is to represent a closed curve or surface, \curve, that moves under the influence of a velocity field that can change over time, \velocityfield. We will from now on use bold face letters for vectors and $\vv{v}$ denotes a vector field $v$. The level set approach to this problem, as first presented in 1987 by S.Osher and J. Sethian \cite{Osher-Sethian}, is to define a continuous function \uxt\ defined on a domain $\domainm \in \realspacem^2$ containing the initial curve $\Gamma|_{t=0}$. The domain \domain\ is split into two parts by the curve \curve, the interior $\Omega$, and the exterior  $\domainm \setminus \Omega$. See \figref{fig:levelset-representation} as a reference.
+\begin{figure}
+    \centering
+    \includegraphics[width=.5\linewidth]{figures/tikz-figures/optimization-problem.tex}
+    \caption[Level set function]{Level set representation of a curve \curve.}
+    \label{fig:levelset-representation}
+\end{figure}
+The function \uxt\ must be constructed in a way that satisfies the following properties
+\begin{align}
+    u(\mathbf{x}, t) < 0 \qquad &\text{for } \mathbf{x} \in  \Omega(t) \label{eq:interior}\\
+    u(\mathbf{x}, t) = 0 \qquad &\text{for } \mathbf{x} \in  \curvem \label{eq:zero-iso-curve}\\
+    u(\mathbf{x}, t) > 0 \qquad &\text{for } \mathbf{x} \in  \mathcal{D} \setminus \Omega(t) \label{eq:exterior}.
+\end{align}
+Now, the curve \curve\ can be described in terms of \uxt\ by being its zero iso-contour. This means that if we can find the proper evolution of 
+\uxt\ we can implicitly track the motion of the curve.
+Now, what we need is to find a model for the change in \uxt\ in order
+to simulate the level curve, \curve, as a curve flowing in the velocity field \velocityfield. Because the zero iso-curve of \uxt\ is the only region of interest, we differentiate \eqref{eq:zero-iso-curve} with respect to time and thus, assuming that $\uxtm$ is at least in $C^1(\curvem)$, the following must hold.
+\begin{equation}
+    \bigg(u(\mathbf{x}, t)_t + \nabla u(\mathbf{x}, t) \, \frac{\partial \mathbf{x}}{\partial t} \bigg)_{\mathbf{x}\in \curvem} = 0.
+    \label{eq:general-u-flow}
+\end{equation}
+The term $\mathbf{x}_t=\frac{\partial \mathbf{x}}{\partial t}$ for $\mathbf{x} \in \curvem$ is the velocity of the curve. The curve only represents a shape or boundary of a domain and has thus no density. Hence, the only component of the velocity that has any influence on the movement is the normal component. We define positive direction of speed to be inwards and define the normal vector $\vv{n}_{\curvem}$ pointing out of $\Omega(t)$. Thus the velocity for the zero level curve $\mathbf{x}_t$ must be
+\begin{equation}
+    \mathbf{x}_t = (\velocityfieldm \cdot \vv{n}_{\curvem})\cdot \vv{n}_{\curvem}= -v_n \vv{n}_{\curvem}.
+    \label{eq:velocity-levelcurve}
+\end{equation}
+We can also see from \eqref{eq:interior}-\eqref{eq:exterior} that the gradient of \uxt\ at the curve \curve\ is always pointing in the direction of the normal vector of \curve, $\vv{n}_{\curvem}$. Thus we can write the normal vector as
+\begin{equation}
+    \vv{n}_{\curvem} = \frac{\nabla u}{|\nabla u|}.
+    \label{eq:normal-of-levelcurve}
+\end{equation}
+
+Inserting \eqref{eq:velocity-levelcurve} and \eqref{eq:normal-of-levelcurve} into \eqref{eq:general-u-flow}, we get the levelset evolution equation 
+
+\begin{tcolorbox}[title=The level set evolution equation]
+\begin{equation}
+    u_t - v_n\, |\nabla u| = 0
+    \label{eq:general-level-set}
+\end{equation}
+\end{tcolorbox}
+
+We constructed this partial differential equation to let the curve, \curve, flow in 
+our velocity field, \velocityfield, and have laid no restrictions on the rest of the higher dimensional curve
+\uxt. However, we see that we could have done exactly the same for 
+any other iso-value of \uxt\ by defining 
+\begin{align*}
+    u(\mathbf{x}, t) < k \qquad &\text{for } \mathbf{x} \in  \Omega_k(t) \\
+    u(\mathbf{x}, t) = k \qquad &\text{for } \mathbf{x} \in  \Gamma_k(t) \\
+    u(\mathbf{x}, t) > k \qquad &\text{for } \mathbf{x} \in  \mathcal{D} \setminus \Omega_k(t) .
+\end{align*}
+and differentiating the iso-curve with respect to time. Because the right hand 
+side $k$ is only a constant, this would make no difference to the resulting PDE. Thus
+it is not only the zero iso-contour, but the entire function \uxt\ that is transported 
+in the velocity field \velocityfield.
+
+We will now show that this implicit formulation will yield the same solution as explicitly tracking the curve moving with the given velocity provided by the velocity field. The strategy was proposed by Osher and Sethian in the paper from 1988, which introduced level set methods. Given a parametric curve with a given speed, we can track its position through the equations of motion and show through a reformulation that this yields the same general level set equation.
+
+\subsection{Explicit Derivation} \todo{burde jeg endre alle x til x1 og y til x2? Jeg bruker jo vektor-x ellers?}
+We begin with a closed initial curve $\Gamma_0$ that moves along in the normal direction with speed $v_n=v_n(\mathbf{x}, t)$ for $\mathbf{x}\in \Gamma$. Given a non-zero velocity, the curve moves over time and let then \curve\ be the set of curves for $t\in[0, \infty]$. In an explicit formulation, every curve $\Gamma(t)$ can be parameterized by a variable $s\in[0, S]$ and let the parameterized position vectors be denoted $\mathcal{C}(s, t) = (x(s, t), y(s, t))$ for every curve in \curve. For a fixed $s=s^*$ this can be viewed as a Lagrangian perspective, following a certain particle moving with speed $v_n$. Fixing the time $t=t^*$ yields the parameterized curve $\mathcal{C}(s, t^*) = \Gamma(t^*)$.
+
+The tangent vector field with respect to the curve, $\vv{T}(\mathcal{C})$ comes easily from the parameterization by derivation with of $x$ and $y$ respect to $s$:
+\begin{equation*}
+    \vv{T}(\mathcal{C}) =  \begin{bmatrix}x_s \\ y_s \end{bmatrix}
+\end{equation*}
+Since the unit normal is orthogonal to the tangent, we write it as
+\begin{equation}
+    \vv{n}(\mathcal{C}) = \frac{1}{\sqrt{x_s^2+y_s^2}}\begin{bmatrix}y_s \\ -x_s \end{bmatrix}.
+    \label{eq:parametric-normal}
+\end{equation}
+We now get the equations of motion for a curve moving with a known speed $v_n$ in the normal direction,
+
+\begin{equation}
+    \mathcal{C}(s, t)_t = \begin{bmatrix}x_t \\ y_t \end{bmatrix} = v_n \vv{n} = \frac{v_n}{\sqrt{x_s^2+y_s^2}}\begin{bmatrix}y_s \\ -x_s \end{bmatrix}.
+    \label{eq:parametric-motion-equations}
+\end{equation}
+
+The function $\mathcal{C} : [0, S]\times [0, \infty) \to \realspace^2$ forms a continuous mapping from $(t, s) \to (x, y)$. The Jacobi matrix of this mapping is defined by the relations 
+\begin{align*}
+    dx &= x_s\, ds + x_t\,dt  \\ %\label{eq:parametric-jacobi-dx}
+    dy &= y_s \, ds + y_t\, dt . %\label{eq:parametric-jacobi-dy}
+\end{align*}
+Which on matrix form is
+\begin{equation}
+    \begin{bmatrix} dx \\ dy \end{bmatrix} = J \cdot \begin{bmatrix} ds \\dt \end{bmatrix} = \begin{bmatrix}
+    x_s & x_t \\ y_s & y_t
+    \end{bmatrix} \cdot \begin{bmatrix} ds \\dt \end{bmatrix}.
+    \label{eq:parametric-jacobi-relation}
+\end{equation}
+
+The determinant of the Jacobi matrix, called the Jacobian, is thus
+\begin{equation}
+    |J|= x_s y_t - x_t y_s = v_n \frac{-x_s^2 - y_s^2}{\sqrt{x_s^2+y_s^2}} = -v_n \sqrt{x_s^2+y_s^2}, 
+    \label{eq:jacobi-velocity-relation}
+\end{equation}
+where we have used \eqref{eq:parametric-motion-equations} for the relations between $(x_t, y_t)\to (x_s, y_s)$. 
+
+As long as the Jacobian is non-zero at a given point, the inverse mapping theorem claims that there exists an inverse mapping locally around the point. That is indeed the case here as long as the normal speed $v_n$ is non-zero and the parameterization is chosen so that we avoid $x_s=y_s=0$ at the same time.
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/tikz-figures/t-fxy.tex}
+    \caption[Zero level curves over time]{A representation of the function $t=f(x, y)$ for some curves in the set of curves \curve.}
+    \label{fig:t-functionxy}
+\end{figure}
+
+Hence, there will locally exist an inverse mapping $\mathcal{C}^{-1} : (x, y) \to (t, s)$ such that there exists a relation $t=f(x, y)$. An example of how this function can look is displayed in \figref{fig:t-functionxy}. Here we can see that this function is well defined if a curve does not cross the same spatial point more than once. This is fulfilled if the speed function is continuous and non-zero. The function $f(x, y)$ can thus be used to implicitly describe the set of curves \curve\ by its iso-contours. 
+
+Using this, we can transform \eqref{eq:parametric-motion-equations} into a PDE governing the motion of the curve.
+\begin{proposition}
+    The inverse mapping $t=f(x, y)$ must satisfy 
+    \begin{equation}
+        v_n^2(f_x^2 + f_y^2) = 1,
+        \label{eq:parametric-PDE}
+    \end{equation}
+    for a non-zero $v_n\in C^0$.
+    \label{prop:parametric-PDE}
+\end{proposition}
+\begin{proof}
+The total derivative of $t$, $dt$, can be written in two ways. 
+\begin{align}
+    dt &= t_x dx + t_y dy  \label{eq:dt-1}\\
+    dt &= \frac{1}{|J|}(y_s dx - x_s dy) \label{eq:dt-2},
+\end{align}
+\eqref{eq:dt-1} is the total derivative, and \eqref{eq:dt-2} comes from \eqref{eq:parametric-jacobi-relation} solved for $dt$. By comparing \eqref{eq:dt-1} and \eqref{eq:dt-2} we get that the terms in front of $dx$ and $dy$ have to be equal. 
+\begin{equation}
+    t_x = \frac{y_s}{|J|}, \qquad t_y = -\frac{x_s}{|J|}
+    \label{eq:t-jacobian}
+\end{equation}
+
+Using also the relation between the Jacobian and the normal velocity from \eqref{eq:jacobi-velocity-relation}, we get
+\begin{equation*}
+    f_x^2+f_y^2 = t_x^2+t_y^2 = \frac{y_s^2 + x_s^2}{|J|^2} = \frac{1}{v_n^2}.
+\end{equation*}
+\end{proof}
+
+The partial differential equation \eqref{eq:parametric-PDE} can be solved for $(x, y, f)$ and is for all spacial points $(x, y)$ the time $t = f(x, y)$ at which the curve passed through the point. We can see from \eqref{eq:t-jacobian} that given the parameterization of the initial curve, all the information needed to solve \eqref{eq:parametric-PDE} is possible to obtain from the initial curve. The PDE in \eqref{eq:parametric-PDE} is then a well-defined boundary value problem. We can find the entire three dimensional surface described by $f(x, y)=t$ only from its boundary where $f(x, y)=0$.
+
+We now prove that the solution of \eqref{eq:parametric-PDE} will yield the same solution as the level set evolution equation \eqref{eq:general-level-set}. 
+\begin{comment}
+Consider a small enough section of the curve, \curve, for a fixed $t=t^*$, such that the function is not multivalued with respect to $y$. This curve section can thus be denoted as $y=Y(x, t)$. Inserting this back into \eqref{eq:parametric-PDE}, we obtain \todo{igjen: hvordan?}
+\begin{equation}
+    Y_t - v_n(1+Y_x^2)^{1/2} = 0,
+\end{equation}
+which is a Hamilton-Jacobi equation. \todo{ref+er det restriksjoner på vn?} 
+\end{comment}
+The trick to reformulate this into an implicit formulation is, as we did for the implicit derivation, to define a higher dimensional function \uxt\ satisfying \eqref{eq:interior}-\eqref{eq:exterior}. The level curves of this function is defined by $\uxtm=\text{const}$ and we still have that $t=f(x, y)$. This means that in two dimensions, $u = u(x, y, f(x, y))$.
+
+\begin{align*}
+    0 &= \frac{\diff u}{\diff x} = u_x+u_t f_x \\
+    0 &= \frac{\diff u}{\diff y} = u_y+u_t f_y
+\end{align*}
+ And we directly get the relations
+\begin{equation}
+    f_x = \frac{-u_x}{u_t}, \qquad f_y = \frac{-u_y}{u_t},
+    \label{eq:f-u-relations}
+\end{equation}
+Inserting \eqref{eq:f-u-relations} into \eqref{eq:parametric-PDE}, the PDE governing the motion of the level curves is $u_t^2=v_n^2(u_x^2+u_y^2)$ and taking the square root yields $u_t = \pm v_n(u_x^2+u_y^2)^{1/2} = \pm v_n |\nabla u|$. The sign decides the direction of propagation. 
+
+Because \uxt\ is defined to be negative inside the curve, \uxt\ decreasing will mean outward propagation of the zero level curve \curve. Look at \figref{fig:gradient-velocity} for reference. Thus a positive speed, which we earlier defined to be inward pointing, means that the higher dimensional function must increase. Thus we choose the positive sign. Had either positive velocity been defined outwards, or the level set function been defined to be positive inside, this would mean that the higher dimensional function would have to decrease to move in positive direction, and we had chosen negative sign. This is thus only a choice of definition.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.5\linewidth]{figures/tikz-figures/gradient-dist.tex}
+    \caption[Relation between $\nabla u(\mathbf{x}, t)$ and the curve speed]{When a function \uxt\ satisfying \eqref{eq:interior}-\eqref{eq:exterior} increases, the zero level curve moves with a speed $v_n$ inwards.}
+    \label{fig:gradient-velocity}
+\end{figure}
+
+The resulting equation is then the level set evolution equation we found earlier: 
+\begin{equation*}
+    u_t - |\nabla u|v_n = 0.    
+\end{equation*}
+
+\subsection{Distance- and Curvature Dependent Speed}
+In the modeling aspect of this thesis, which will be discussed in \chapref{chap:modeling}, the normal velocity will both be dependent on the curvature and a constant distance function $d(\mathbf{x}; \pointsetm)$ expressing the distance from any point in \domain\ to the set of sampled points, \pointset. This function will be more thoroughly discussed later, but for now, we only need to know that it is constant and given.
+
+We will now see that all the derivations above holds also for the distance- and curvature-dependent velocity function, $v_n = v_n(\distanceVm, \kappa(\mathcal{C}))$. The distance dependency is given and since it is constant is on the same form as $v_n=v_n(\mathbf{x}, t)$. For a curvature dependent velocity we only need to express the curvature as a function of the parameterization, $\mathcal{C}(x(s), y(s))$, to still show that \eqref{eq:parametric-PDE} is still a well defined boundary value problem. 
+
+The curvature is defined do be the divergence of the normal vector $\vv{n}(\mathcal{C})$ \cite{adams2009calculus} and using \eqref{eq:parametric-normal} it must thus be
+\begin{equation*}
+    \kappa(\mathcal{C}) = \nabla \cdot \vv{n}(\mathcal{C}) = \frac{y_{ss}x_s-x_{ss}y_s}{(x_s^2+y_s^2)^{\frac{3}{2}}}. %\label{eq:parametric-curvature}
+\end{equation*}
+
+The PDE \eqref{eq:parametric-PDE} is then unchanged and the proof still holds.
+\begin{equation*}
+    v_n(\kappa, d)^2(f_x^2 + f_y^2) = 1,
+    %\label{eq:parametric-PDE-curvature}
+\end{equation*}
+
+The level set evolution equation is then
+\begin{equation}
+    u_t - v_n(\kappa(u), \distanceVm) |\nabla u|, 
+    \label{eq:level-set-evolution-kappad}
+\end{equation}
+and the curvature as a function of the higher dimensional function comes from taking the divergence of the normal vector of the zero level curve defined in \eqref{eq:normal-of-levelcurve} and is written
+\begin{equation}
+    \kappa(u) = \frac{-u_{xx}u_y^2+2u_{xy}u_xu_y - u_{yy}u_x^2}{(u_x^2+u_y^2)^{3/2}}
+    \label{eq:curvature-u}
+\end{equation}
+
+We have now found a way to model a curve influenced by a velocity field that could be both curvature- and distance-dependent. We conclude this general discussion of level set methods with some notes concerning the implicit formulation compared to an explicit tracking of the curve.
+
+When the curve is described as a level curve of a higher dimensional function, an advantage is that merging and splitting come naturally and do not need specific implementation. Take, for example, the function in \figref{fig:3d-levelset}, which has two separate zero iso-contours, but only by lowering the function by $0.4$ merge the two contours into the single dashed iso-contour. So, merging of two separate iso-contours can be performed only by lowering the higher dimensional function. Also oppositely, if the shape of the higher dimensional function allows it, lowering the function could split a curve.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.5\linewidth]{figures/tikz-figures/levelset-function.png}
+    \caption[Level set function and iso-contours]{Caption}
+    \label{fig:3d-levelset}
+\end{figure}
+
+One drawback to the level set method is that instead of solving the equations of motion only for the curve, we increase the complexity when we solve \eqref{eq:general-level-set} for the entire domain. It is still only the curve that is relevant for the solution, and the shape and value of the higher dimensional function are irrelevant. Thus most of the computational resources are then used on calculations that do not affect the curve. 
+
+It is theoretically justified in \cite{MR1100211} and \cite{MR1100206} that the curve is not dependent on the shape of the higher dimensional curve as long as the zero level set is the same. Thus calculations performed on the parts of the domain that do not contain the zero level set are wasteful. For this reason, it has been developed local level set methods that only solve the PDE in a layer around the curve. We refer to \cite{Fast-PDE} for details and implementation of such a local method.
+
+
+
+
+
+\begin{comment}
+What to discuss around the method?
+\begin{enumerate}
+    \item increased complexity for solving PDE on entire domain. How to fix
+    \item Topological flexibility. Situations that are now easily handled.
+    \item Existence of viscosity solution (?????). In that case, I must read.
+    \item Existence and uniqueness
+\end{enumerate}
+\end{comment}
+
+\input{chapters/Background-Theory/distance-functions.tex}
+\input{chapters/Background-Theory/shape-derivatives.tex}
+%\input{chapters/Background-Theory/eikonal-equation-fmm.tex}
+
+

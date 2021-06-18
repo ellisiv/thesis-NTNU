@@ -1,0 +1,25 @@
+\subsection{The Eikonal equation}
+The Eikonal equation is closely tied with distance functions, or more accurately, it turns out that distance functions are solutions of the Eikonal equation. 
+
+For an expanding front, $\Gamma$, moving outwards with speed $F>0$, we can compute the arrival time at a point $(x, y)$, denoted $T(x, y)$. The initial front is then $T(x, y)=0$, and it grows with rate $F$ outwards, since the distance traveled $d$ given a velocity $F$ and time $T$ is $d=FT$ and thus $\diff d/\diff t=F$ and $1=F \nabla T$ and we get
+\begin{equation}
+    \begin{aligned}
+        &|\nabla T| = \frac{1}{F} \\
+        &T(x, y)=0 \qquad \text{for } (x, y) \in \Gamma, 
+    \end{aligned}
+    \label{eq:eikonal-equation}
+\end{equation}
+which is the Eikonal equation \cite{sethian1999level}. We observe that for $F=1$, this is $|\nabla T|=1$ and from Proposition \ref{prop:grad-distance}, we see that the gradient of the distance function must satisfy the Eikonal equation \eqref{eq:eikonal-equation}. This is intuitive because the relation between the distance and time is $s=FT$ and this a velocity $F=1$ would mean that the distance traveled must be equal to the travel time used with speed 1.
+
+It is this relation to the distance function that makes the Eikonal equation interesting in this setting. In stead of looking at the construction of a distance problem as a minimization problem, we solve the Eikonal equation. 
+
+\begin{comment}
+\begin{enumerate}
+    \item Relation to Hamilton Jacobi and Level set formulation
+    \item Distance function - stupid approach :-) vs idea behind fast marching - boundary moving with speed 1.
+    \item Algorithm for FMM??
+\end{enumerate}
+\end{comment}
+
+
+\clearpage

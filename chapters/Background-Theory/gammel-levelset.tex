@@ -1,0 +1,113 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+and the velocity is dependent on the curvature, $\kappa$ of the curve. \curve is the resulting family of curves that are generated over time, $t\in[0, T)$. In the explicit formulation, every curve $\Gamma(t_n)$ can be parameterized by a variable $s\in[0, S]$. We call the resulting position vector $\mathcal{C}(s, t) = (x(s, t), y(s, t))$. For a fixed $s=s'$ we follow a specific *del av kurve (partikkel)* over time, and fixing $t=t'$, $\mathcal{C}(s, t') = \Gamma(t')$ which is the curve at time $t=t'$.
+
+The normal vector field to the curve is 
+\begin{equation}
+    \vv{n}(\mathcal{C}) = \frac{1}{\sqrt{x_s^2+y_s^2}}\begin{bmatrix}y_s \\ -x_s \end{bmatrix}.
+    \label{eq:parametric-normal}
+\end{equation}
+
+The curvature is a measure of how the direction of the normal vector changes over the curve, and is defined by
+\begin{equation}
+    \kappa(\mathcal{C}) = \nabla \cdot \vv{n}(\mathcal{C}) = \frac{y_{ss}x_s-x_{ss}y_s}{(x_s^2+y_s^2)^{\frac{3}{2}}}.
+    \label{eq:parametric-curvature}
+\end{equation}
+
+Thus, knowing that the curve moves with speed $v_n(\kappa)$ in the normal direction, the velocity of the curve 
+is described by
+\begin{equation}
+    \mathcal{C}(s, t)_t = \begin{bmatrix}x_t \\ y_t \end{bmatrix} = v_n(\kappa) \vv{n} = \frac{v_n}{\sqrt{x_s^2+y_s^2}}\begin{bmatrix}y_s \\ -x_s \end{bmatrix}.
+    \label{eq:parametric-motion-equations}
+\end{equation}
+
+The function $\mathcal{C} : [0, S]\times [0, \infty) \to \realspace^2$ forms a continuous mapping from $(t, s) \to (x, y)$. The Jacobi matrix of this mapping is defined by the relations 
+\begin{align}
+    dx &= x_s\, ds + xt\,dt \label{eq:parametric-jacobi-dx} \\
+    dy &= y_s \, ds + y_t\, dt \label{eq:parametric-jacobi-dy}.
+\end{align}
+Which on matrix form is
+\begin{equation}
+    \begin{bmatrix} dx \\ dy \end{bmatrix} = J \cdot \begin{bmatrix} ds \\dt \end{bmatrix} = \begin{bmatrix}
+    x_s & x_t \\ y_s & y_t
+    \end{bmatrix} \cdot \begin{bmatrix} ds \\dt \end{bmatrix}.
+    \label{eq:parametric-jacobi-relation}
+\end{equation}
+
+The determinant of the Jacobi matrix, called the Jacobian, is thus
+\begin{equation}
+    |J|= x_s y_t - x_t y_s = v_n(\kappa) \frac{-x_s^2 - y_s^2}{\sqrt{x_s^2+y_s^2}} = -v_n \sqrt{x_s^2+y_s^2}, 
+    \label{eq:jacobi-velocity-relation}
+\end{equation}
+where we have used \eqref{eq:parametric-motion-equations} for the relations between $(x_t, y_t)\to (x_s, y_s)$.
+
+Due to the inverse mapping theorem, there will exist an inverse mapping close to a point ** as long as the Jacobian is non-zero. That is the case as long as $v_n(\kappa)$ is non zero. \todo{spør om detaljer her. Kan xs, ys=0 samtidig?} 
+
+Near $t=0$ there will thus exist an inverse mapping $\mathcal{C}^{-1} : (x, y) \to (t, s)$ and since for a constant $t$, $(x, y)$ is uniquely determined by the parametric curve **, we can find a mapping $t = f(x, y)$. \todo{tenk grundig gjennom hvorfor}. This function $f(x, y)$ could then be used as an implicit function describing the curve $\Gamma (t)$ for constant levels of $f$, which using our level set methodology is called an iso-contour.
+
+Using this, we can transform \eqref{eq:parametric-motion-equations} into a PDE governing the motion of the curve.
+\begin{proposition}
+    The inverse mapping $t=f(x, y)$ must satisfy 
+    \begin{equation}
+        v_n(\kappa)^2(f_x^2 + f_y^2) = 1,
+        \label{eq:parametric-PDE}
+    \end{equation}
+    for a 
+\end{proposition}
+\begin{proof}
+The total derivative of $t$, $dt$, can be written in two ways. 
+\begin{align}
+    dt &= t_x dx + t_y dy  \label{eq:dt-1}\\
+    dt &= \frac{1}{|J|}(y_s dx - x_s dy) \label{eq:dt-2},
+\end{align}
+\eqref{eq:dt-1} is the total derivative, and \eqref{eq:dt-2} comes from \eqref{eq:parametric-jacobi-relation} solved for $dt$. Using that \eqref{eq:dt-1} is equal to \eqref{eq:dt-2} we get that the terms in front of $dx$ and $dy$ have to be equal. 
+\begin{equation}
+    t_x = \frac{y_s}{|J|}, \qquad t_y = -\frac{x_s}{|J|}
+    \label{eq:t-jacobian}
+\end{equation}
+
+Using also the relation between the Jacobian and the normal velocity from \eqref{eq:jacobi-velocity-relation}, we get
+\begin{equation*}
+    f_x^2+f_y^2 = t_x^2+t_y^2 = \frac{y_s^2 + x_s^2}{|J|^2} = \frac{1}{v_n^2}.
+\end{equation*}
+\end{proof}
+
+Now, we have a partial differential equation that can be solved for $(x, y, f)$ which for all spacial points $(x, y)$ provides an $f(x, y) = t$ which is the time at which the curve passed through the point. We know that for all $\Gamma (t) = (x(s), y(s))$, then $t=f=$constant, but we do not really know much more about the function $f$ and its initial shape. For the initial curve to be sufficient initial data for \eqref{eq:parametric-PDE}, we need to be able to calculate $f_x$ and $f_y$ from the curve. 
+
+
+Now we show that the initial curve, $\Gamma_0$, provides sufficient initial data for solving \eqref{eq:parametric-PDE}. We have assumed that the position vector for the initial curve $\mathcal{C}(s, 0)$ is a parametric curve by the variable $s$ and we further assume that $\mathcal{C}(s, 0) \in C^2$ with respect to $s$, meaning that we can find $x_s$, $y_s$, $x_{ss}$ and $y_{ss}$ from $\Gamma_0$. From \eqref{eq:parametric-curvature}, we have that the curvature, $\kappa(\Gamma_0)$, is defined only from this curve. 
+
+Having that the curvature, and $x_s$ and $y_s$ is defined, the Jacobian, $|J|$, is defined, and using that $f_x = t_x$ and $f_y=t_y$ we use \eqref{eq:t-jacobian} to show that $f_x$ and $f_y$ is uniquely defined from the initial curve. \todo{Hvorfor trenger Osher-Sethian å ha f-xx og f-yy??}
+
+We prove now that using this parametric formulation, we can obtain the level set method, or in other words, we obtain the PDE \eqref{eq:general-level-set}. If we indeed can translate from the explicit/parametric formulation to the implicit level set formulation, we have shown that the level set formulation will yield the same solution as an explicit tracking when the curve is a function.
+
+We consider a small enough section of the curve at time $t=f(x, y)$ such that the section is not multivalued for $y$ and we can write the curve section as $y=Y(x, t)$. Inserting this back into \eqref{eq:parametric-PDE}, we obtain \todo{Denne delen har jeg ennå ikke skjønt på egen hånd}
+
+\begin{equation}
+    Y_t - F\bigg[\frac{-Y_{xx}}{(1+Y_x^2)^{3/2}} \bigg](1+Y_x^2)^{1/2} = 0.
+\end{equation}
+This is a Hamilton-Jacobi equation, requiring that $v_n(0)\neq 0$ and $v_n'(0)\neq 0$. The trick to reformulate this into an implicit formulation is, as we did in the implicit derivation above, to define a higher dimensional function $u$ satisfying \eqref{eq:interior}-\eqref{eq:exterior}. The level curves of $u$ is defined by $u(x, y, t)=C$ and $t=f(x, y)$ which means that
+\begin{equation}
+    f_x = \frac{-u_x}{u_t}, \qquad f_y = \frac{-u_y}{u_t},
+\end{equation}
+and inserting this into \eqref{eq:parametric-PDE}, we obtain an implicit PDE for the level curves, $v_n(\kappa)^2(u_x^2+u_y^2) = u_t^2$. Taking the square root yields $u_t = \pm v_n(\kappa)(u_x^2+u_y^2)^{1/2} = \pm v_n(\kappa)|\nabla u|$. The sign decides the direction of propagation, and choosing the negative sign yields propagation inwards, because of the definition of the normal vector on the level curves \eqref{eq:normal-of-levelcurve}. The resulting equation is the level set equation we found earlier, now specified to have curvature dependent speed
+
+\begin{align}
+    &u_t - |\nabla u|v_n(\kappa) = 0, \\
+    &\kappa(u) = \frac{-u_{xx}u_y^2+2u_{xy}u_xu_y - u_{yy}u_x^2}{(u_x^2+u_y^2)^{3/2}}. \label{eq:curvature-implicit}
+\end{align}
+The curvature, which is $\nabla \cdot \vv{n}$ comes from applying the formula for the normal vector \eqref{eq:normal-of-levelcurve} in two spatial dimensions
+\begin{equation}
+    \kappa(u) = \nabla \cdot \frac{\nabla u}{|\nabla u|} = \frac{\Delta u}{|\nabla u|}+\nabla u \cdot \nabla\bigg(\frac{1}{|\nabla u|}\bigg).
+\end{equation}
+Using that 
+\begin{align*}
+    |\nabla u| &= (u_x^2+u_y^2)^{\frac{1}{2}},\\
+    \Delta u &= (u_{xx} + u_{yy}),\\
+    \nabla u &= \begin{bmatrix}u_x & u_y \end{bmatrix} \\
+    \nabla \bigg( \frac{1}{|\nabla u|} \bigg) &= \begin{bmatrix}\bigg( \frac{1}{|\nabla u|} \bigg)_x & \bigg( \frac{1}{|\nabla u|} \bigg)_y \end{bmatrix} \\
+    \bigg( \frac{1}{|\nabla u|} \bigg)_x &= -\frac{1}{2} (u_x^2+u_y^2)^{-\frac{3}{2}}(2u_x u_{xx}+2u_y u_{xy}), \\
+    \bigg( \frac{1}{|\nabla u|} \bigg)_y &= -\frac{1}{2} (u_x^2+u_y^2)^{-\frac{3}{2}}(2u_y u_{yy}+2u_x u_{xy}),
+\end{align*}
+we obtain \eqref{eq:curvature-implicit}.
+

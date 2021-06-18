@@ -1,0 +1,37 @@
+\section{A Mathematical Problem Formulation}
+\begin{figure}
+    \centering
+    \includegraphics{figures/tikz-figures/initial-problem.tex}
+    \caption[Problem description]{Caption}
+    \label{fig:problem-description}
+\end{figure}
+Consider a set of points,$v \in \pointsetm$, where $v \in \realspacem^2$ as pictured in \figref{fig:problem-description}. The approach is to construct an initial curve, $\Gamma_0$, encircling the point set which is to be incrementally improved according to given quality measures. 
+
+The incremental improvement is done by moving the curve with a speed dependent on the shape and the distance to the nearest point. Thus the approach is solving a partial differential equation with the starting curve as initial condition. The PDE is a Hamilton-Jacobi type equation which is defined on a subspace, \domain, of $\realspacem^2$ including the point set. The PDE governs the motion of a functional $u : \realspacem^2 \to \realspacem$ with the curve as zero level set. The PDE is defined as follows
+
+\begin{tcolorbox}[title=Mathematical formulation of our PDE model]
+\begin{alignat}{2}
+    &u_t = |\nabla \uxtm | \big[ (1-\alpha) \kappa(u)(\mathbf{x}, t) + \alpha \sigma(\mathbf{x}, t) d(\mathbf{x})  \big] & \text{for }\mathbf{x}\in \domainm \\
+    &u(\mathbf{x}, 0) = u_0 & \text{for }\mathbf{x}\in \domainm\\
+    &u_0(\Gamma_0) = 0  & \\
+    &\nabla_{\vv{n}} u = 0 &\text{for } \mathbf{x} \in \partial\domainm
+\end{alignat}
+\end{tcolorbox}
+
+
+
+\begin{comment}
+We are studying a surface reconstruction problem, where we are given a set of sample points, \pointset, which are spatial points belonging to a closed surface, $\Gamma$. The points are \textit{unstructured} which means that no information is given regarding the order of the points. In addition the samples of the surface could contain some measuring errors, or noise that would make the samples \textit{irregular}. The task is then to reconstruct the original surface using the sample points.
+
+The approach in this thesis is to define two quality measures, curvature and distance from the surface to the point set, and 
+
+
+
+In this thesis, the quality of the surface is measured only by its curvature and closeness to the
+points. The curvature is a measure of the variation of the surface, or more specific, how much the
+angle between the tangent and a constant vector changes over the surface. 
+
+The strategy is constructing a PDE based model, which given an initial guess, continuously perturbs
+the surface in a direction that increases the quality measure. This means we introduce a partial 
+differential equation with a 
+\end{comment}

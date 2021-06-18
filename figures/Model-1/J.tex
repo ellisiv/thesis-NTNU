@@ -1,0 +1,22 @@
+\begin{tikzpicture}
+
+\begin{axis}[
+    axis lines = center,
+    xlabel = $r$,
+    ylabel = {$E(\Omega(r))$}]
+    \addplot [
+        domain=0:1, 
+        samples=20,
+    ]
+    {0.15*(2*pi*x)+0.85*(2*pi*(x^3/3-x^2/2))};
+    \addplot [
+        domain=1:1.5, 
+        samples=10,
+    ]
+    {0.15*(2*pi*x)+0.85*(2*pi/3+2*pi*(x^3/3-x^2/2))};
+    \draw[dashed, color=red] (1,0.05) -- (1,1.8);
+    
+    \node [anchor=south] at (1,2) {$r_v$};
+\end{axis}
+ 
+\end{tikzpicture}

@@ -1,0 +1,40 @@
+\subsection{The Fast Marching Method}
+The idea behind the Fast Marching Method is to utilize that the Eikonal equation is a boundary value problem, meaning that all the information travels in one direction at all times -- from the curve and outwards. Thus a solution can be obtained only from upwind values. 
+
+\todo{Fyll inn upwind skjema for å regne ut Eikonal eq i punkt (i, j)}
+
+The over all strategy is then to mark all grid points with known values in a list $K$, and calculate the values in their neighboring points using the upwind scheme \textbf{(??)} and store them in a data structure $T$, which stands for \textit{trial}, containing both the grid point and trial value. The smallest value in $T$ must have correct value, because all information flows from smaller to greater values and thus it has to be independent of all other points in $T$ \cite{sethian1999level}.
+
+This more algorithmically formulated as \\
+\begin{algorithm}[H]
+\SetAlgoLined
+$u_d(\mathbf{x}; \Gamma)=\texttt{zeros}(N,M)$\;
+$T = \texttt{Array\{ (i, j) : 0\}} \qquad$ for $(i, j) \in \Gamma$\; 
+$K = \texttt{Array \{\}}$
+
+\KwResult{$u_d(\mathbf{x}; \Gamma)$}
+
+\While{$T\neq \{ \}$}{
+    $(i, j) = \texttt{argmin}(T)$ \;
+    $u_d(i, j) = T(i, j)$ \;
+    $K += (i, j)$ \;
+    $T -= (i, j)$ \;
+    $N = \texttt{neighbors}(i, j) \notin K$\;
+    \For{$(p, q) \in N$}{
+        $T += (p, q) : (\texttt{solve}(\textit{Eikonal equation w/upwind scheme}))$
+    }
+}
+ \caption{The Fast Marching Method}
+ \label{alg:idea-fmm}
+\end{algorithm}
+
+For a rectangular grid, each grid point can at most be the neighbor of four other points before being redefined to \textit{known}. Thus it will have a worst case complexity bounded by $\mathcal{O}(4 (N\times M))$, which can be significantly smaller than the complexity of Algorithm \ref{alg:direct-distance} for large point sets.
+
+Note that the Fast Marching Method can be used to produce both signed and unsigned distance functions. The speed $F$ has direction normally outwards of the curve or known points, and by setting $F=-1$ on the inside of the curve yields a signed distance function.
+
+There exists a Python package named $\texttt{scikit-fmm}$ which implements the Fast Marching Method. The function $\texttt{distance}()$ will produce the signed distance function, but a pure distance function can be produced with the built-in function $\texttt{travel\_time} ()$ using a velocity $F=1$ outside and $F=-1$ inside the curve\footnote{\texttt{https://pythonhosted.org/scikit-fmm/}}.
+
+Both Algorithm \ref{alg:direct-distance} and Algorithm \ref{alg:idea-fmm} could thus be used in the Level set Algorithm
+
+This Algorithm can be applied in the initialization of the solver, when calculating $d(\textbf{x})$ and $u_0(\Gamma)$ and also when re-initializing. 
+

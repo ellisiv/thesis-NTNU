@@ -1,0 +1,22 @@
+
+\begin{tikzpicture}
+    \begin{axis}[
+          xtick = \empty,
+          ymin=-0.6,
+          ymax=1,
+          ytick=\empty,
+          axis x line=center,
+          axis y line=center,
+          ]
+    \addplot[domain=-1:1, samples=21, ntnublue, thick] ({x}, {abs(x)-0.4});
+    \addlegendentry{$u_d(x)$}
+    \addplot[domain=-1:1, samples=21, black, thick] ({x}, {x<0 ? abs(x+0.4) : abs(x-0.4)});
+    \addlegendentry{$d(x)$}
+    \draw[decorate,decoration={brace,amplitude=5pt}, thick] (-0.4, 0) -- (0.4, 0);
+    
+    \node [anchor=south] at (0.05,0.05) {$\Omega$};
+    \node [anchor=north] at (0,-0.05) {$u_d=-d$};
+    \node [anchor=west] at (0.45,0.05) {$u_d=d$};
+    \node [anchor=east] at (-0.45,0.05) {$u_d=d$};
+    \end{axis}
+\end{tikzpicture}

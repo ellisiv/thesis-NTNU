@@ -1,0 +1,42 @@
+\section{Updating the Sign Function}
+The purpose of the sign function $\sigma(\mathbf{x}, t))$ is to pull the curve in the right direction. As stated, the sign function should be positive when the curve is outside the point set and negative if it is inside of the point set. This may seem like a simple task at first glance, but deciding whether or not the curve should move inwards or outwards is not simple at all.
+
+We first present the strategy that is chosen in our implementation, namely pulling the curve towards its closest points. There is a clear reason behind our choice, but there certainly are drawbacks to the strategy as well, which we will shed light on during this discussion.
+
+The information needed to pull the curve towards the closest point at all times is first of all what parts of space that are closest to which data points and then whether or not that data point is inside or outside of our curve. This is kind of the equivalent but opposite way of looking at the problem, namely whether or not the data points are inside or outside the curve. 
+
+
+\begin{algorithm}[H]
+\SetAlgoLined
+
+
+
+
+\For{$\texttt{contour} \in \texttt{contour\_curves}$}{
+    $\texttt{coords}_{t+1} = \texttt{contour}.\texttt{collections.get\_paths().vertices}$ \;
+}
+\If{$\texttt{shape}(\texttt{coords}_{t+1}) == \texttt{shape}(\texttt{coords}_{t})$}{
+    \If{$\|\texttt{coords}_{t+1} - \texttt{coords}_t\|_2 \leq \epsilon$}{
+    $\texttt{continue} = \texttt{False}$ \;
+    }
+}
+\KwResult{$\sigma_{n+1}(X, Y)$}
+ \caption{Updating $\sigma(\mathbf{x}, t)$}
+\label{alg:update-sign}
+\end{algorithm}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The distance function is local, meaning that it only knows the distance to the closest point and knows nothing about the global arrangement of points. This is the main reason why the sign function is chosen as it is. Remember that it is the distance function which provides the speed and the sign function that decides the direction of the distance-dependent velocity and it is most elegant that the speed and direction is constructed from the same information.
+
+Although it is reasonable, it is not obvious, and there are several reasons why one could want something else. Say that you have noise in your data, and the most obvious curve to draw is one that does not go through any of the points, but passes somewhere in the middle. This kind of behavior would not be encouraged by such a local sign function. 
+
+
+From the initialization, we saw that the starting curve was chosen to surround all the points in the point set, meaning that the sign function must be positive everywhere. For the behavior of the curve, this means that the distance term is contributing to the speed inwards -- towards the point set. In such cases, where the curve is outside the point set, the sign function has an obvious value. However this is maybe the only situation where this is obvious. 
+
+Say you have noise in your data, and there is no obvious structure in the arrangement of the data points. Then it can be hard to determine whether or not anything is inside or outside of your data points. There could also be situations where the curve is inside and outside simultaneously, if for example again, there are noise and the curve lies somewhere in between data points.
+
+By looking at the data set and the curve, it could be obv
+
+\clearpage

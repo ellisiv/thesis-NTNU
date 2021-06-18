@@ -1,0 +1,70 @@
+\section{Distance Functions}\label{sec:distance-function}
+
+We have now presented the idea behind general level set functions. It was there said that the shape of a higher-dimensional function \uxt\ that implicitly defined the curve, \curve\ was insignificant to the shape and motion of the curve. However, 
+
+
+it turns out that a \textit{signed distance function} is a natural choice of a higher dimensional function, even though it is not the only choice. This section will present what an unsigned and signed distance function is and why it could be a natural choice for a higher dimensional level set function. 
+
+We begin with the standard distance function, which is everywhere the euclidean distance to an object. We will sometimes call this function \textit{the unsigned distance function} in order to separate it from the signed distance function. 
+
+\begin{definition}[distance function]
+\cite{2003-book} A distance function, when applied to a point set, $\pointsetm \in \realspace^d$, yields the minimal euclidean distance from all points $\mathbf{x} \in \realspace^d$ the point set. Thus $d(\mathbf{x}; \pointsetm)$ is defined as 
+\begin{equation}
+    d(\mathbf{x};\mathcal{V}) = \min_{\mathbf{x}_{v} \in \mathcal{V}} \|\mathbf{x}-\mathbf{x}_{v} \|_2
+    \label{eq:unsigned-distance-function}
+\end{equation}
+When the function $d$ measures the distance to a curve or surface $\Gamma \in \realspace^{d-1}$ it is denoted $d(\mathbf{x}; \Gamma)$ and defined as 
+\begin{equation}
+    d(\mathbf{x}; \Gamma) = \inf_{\mathbf{x}_{\Gamma}\in \Gamma} \|\mathbf{x}- \mathbf{x}_{\Gamma}\|_2
+    \label{eq:unsigned-distance-function-curve}
+\end{equation}
+\end{definition}
+
+The norm $\|\mathbf{x}-\mathbf{x}_{v} \|$ is positive for all input $\mathbf{x}$ and $\mathbf{x}_{v}$, and thus the distance function is globally positive, or \textit{unsigned}.
+
+The distance function can be computed to an arbitrary point set or curve, and the notion of a distance function makes intuitive sense. Solving the minimization problem can be time consuming, but as long as $\mathcal{V}\neq \emptyset$ or $\Gamma \neq \emptyset$, $d(\mathbf{x},\cdot)$ is uniquely defined everywhere.
+
+Further more, as long as there exists a well defined closest point, the gradient of an unsigned distance function $|\nabla d(\mathbf{x}; \cdot)| = 1$ where $d(\mathbf{x}; \cdot) \in C^1$. The cases where this is not true, is where $\mathbf{x}$ is equidistant from at least two points in the point set , \pointset, or the curve, $\Gamma$, and when $d(\mathbf{x}; \cdot)=0$ \cite{2003-book}.
+\begin{comment}
+\begin{proposition}[The gradient of a distance function]\label{prop:grad-distance}
+For a distance function $d(\mathbf{x};\cdot)$ applied to either a curve or a point set, the following is true.
+\begin{equation}
+    |\nabla d(\mathbf{x}; \cdot)| = 1, \qquad \forall \mathbf{x} \
+    \label{eq:gradient-1}
+\end{equation}
+
+\end{proposition}
+\begin{proof}
+\todo{Skal jeg ta det med her? I appendix? Jeg kan jo ikke referere til deg Anne, men jeg har jo ikke bevist det selv?}
+\end{proof}
+
+\end{comment}
+
+We denote the signed distance function $u_d(\mathbf{x}; \cdot)$. In general, the signed distance function both represents the distance to a curve or surface and whether or not a spatial point $\mathbf{x}$ is inside or outside that curve or surface. To construct such a function, we thus need information about where the inside and outside of the curve or surface are. Note that the inside can be established for a closed curve or surface without any prior knowledge, but this is not true for non-closed surfaces or curves. 
+
+The sign of $u_d(\mathbf{x}; \cdot)$ is a discrete value yielding $+1$ if the spatial point is inside the curve or surface and $-1$ if the point is outside. 
+\begin{definition}[signed distance function]
+In a domain, \domain, including a closed region $\Omega$ with surface or boundary, $\Gamma$, the signed distance function $u_d(\mathbf{x};\Gamma)$ is defined as
+\begin{equation*}u_d(\mathbf{x};\Gamma) = \begin{cases} \, d(\mathbf{x}; \Gamma) \qquad & \text{if } \mathbf{x}\in \Omega\\ -d(\mathbf{x}; \Gamma) \qquad & \text{if } \mathbf{x}\in \mathcal{D} \setminus \Omega\end{cases}
+\end{equation*}
+\label{def:signed-dist}
+\end{definition}
+These values are exclusively a choice of definition and could as easily be defined oppositely. What is convenient about this definition is that the signed distance function satisfies the conditions \eqref{eq:interior}-\eqref{eq:exterior} concerning the higher dimensional level set function \uxt. A picture showing both the signed and unsigned distance function together can be viewed in \figref{fig:distance-functions}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.5\linewidth]{figures/tikz-figures/signed-distance.tex}
+    \caption[Distance Functions]{A cross section of the signed distance function, $u_d(x)$, and the (unsigned) distance function, $d(x)$, applied to a closed curve $\Omega$.}
+    \label{fig:distance-functions}
+\end{figure}
+
+In addition to being qualified as a level set function, the signed distance function $u_d(\mathbf{x}; \Gamma)$ is a natural choice of level set function for the following reasons. First of all, it can be constructed easily from any initial curve $\Gamma_0$, because signed distance functions are uniquely defined by their zero level set.
+
+In addition they have the property that $|\nabla u_d| = 1$ for all points where $u_d \in C^1$. This comes directly from the same property of unsigned distance functions above and Definition \ref{def:signed-dist}. Also note that the signed distance, $u_d(\mathbf{x}, \Gamma)$ is also $C^1(\Gamma)$ contrary to the unsigned distance $d(\mathbf{x}, \Gamma)$. This can be seen in \figref{fig:distance-functions}.
+
+
+
+This property for the gradient is desirable in the level set equation \eqref{eq:general-level-set}, because the absolute value of the gradient decides the sensitivity of the higher dimensional function. This can be seen in \figref{fig:gradient-velocity} by observing that the gradient of the higher dimensional function decides the angle, $\theta$, between the curve and the $x$-axis (or $(x, y)$-plane in $\realspacem^2$) and $v_n \sim \cos (\theta)$.
+
+A steep gradient thus implies a greater angle which again yields smaller $v_n$. Thus a big gradient means that the curve is less sensitive to changes in the higher dimensional function and, conversely, if the gradient is small. This also means that if the gradient is constant everywhere, the sensitivity does not change over the domain, and all level curves will move inwards with speed $v_n$.
+

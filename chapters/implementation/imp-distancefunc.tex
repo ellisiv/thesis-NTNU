@@ -1,0 +1,104 @@
+\section{Distance Functions} \label{sec:imp-dist}
+In this setting, we use two types of distance functions, the signed and unsigned. We see from \eqref{eq:m1-imp} -- \eqref{eq:m3-imp} that the unsigned distance function to the point set, \pointset, is needed in in the velocity function for all models. In addition, as we discussed in \secref{sec:distance-function} that the signed distance function is a natural choice of level set function, \uxt, which is now the discretized $U^n(X_{i, j})$. We thus need algorithms to produce both types of distance functions on our discretized domain. We begin with the unsigned distance function.
+
+First, note that numerically solving \eqref{eq:unsigned-distance-function} and \eqref{eq:unsigned-distance-function-curve}, which are the distance functions to respectively a set of points and a curve, reduces to the same problem. The discretized curve is only a set of coordinates where the curve crosses the grid lines. Thus, the following algorithm is a numerical approximation to both \eqref{eq:unsigned-distance-function} and \eqref{eq:unsigned-distance-function-curve}.
+
+The straightforward approach to solve any minimization problem is to go through every alternative value and choose the minimal value. Interpreted for this problem---for all grid points $X_{i, j}$, make an array of the distance to all points in the point set and return the minimum of these.
+
+\begin{algorithm}[H]
+\SetAlgoLined
+$d(\mathbf{x}; \pointsetm)=\texttt{zeros}(N,M)$\;
+
+ \For{$i\gets0$ \KwTo $N_y$}{
+    \For{$j\gets0$ \KwTo $N_x$}{
+    $d$[i, j] = 0 \;
+    \ForEach{$v \in \pointsetm$}{
+    \If{$\|X[i, j] - v\|< d[i, j]$}{$d[i, j]=\|X[i, j] - v\|$\;}
+    }
+    }
+    }
+\KwResult{$d(\mathbf{x}; \pointsetm)$}
+ \caption{Direct approach for distance functions}
+ \label{alg:direct-distance}
+\end{algorithm}
+
+We see that \algref{alg:direct-distance} has a quadratic complexity with respect to the grid size and also increasingly dependent on the size of the sample points \pointset. For each grid point, the distance to all sample points must be calculated before choosing the minimum. The complexity is thus $\mathcal{O}(N_x\times N_y \times V)$ for $V=\texttt{size}(\pointsetm)$. Furthermore, when Algorithm \ref{alg:direct-distance} is applied to a discretized curve, the resolution increases with $N_x$ and $N_y$ so the size of the coordinate set defining the curve increases. In that case, the size of the point set will also increase with $N_x$ and $N_y$ and thus scale even worse.
+
+As we just saw, the approach is very time-consuming for the implementation of distance functions to curves. We observed in the first implementation, which used Algorithm \ref{alg:direct-distance}, that this considerably slowed down the overall run time. For that reason, we were on the look for something else. The answer became the \textit{Fast Marching Method} derived and developed by Sethian in the $90$s, and a thorough introduction can be found in his book\cite{sethian1999level}.
+
+\begin{comment}
+The unsigned distance function is only used in the initialization to calculate \distanceV\ defined in \eqref{eq:unsigned-distance-function}, namely the distance to the point set, which is constant throughout the algorithm. The signed distance function, \signeddistance, on the other hand, is both used in the initialization to construct the initial higher dimensional curve and in the re-initialization procedure.
+
+From \secref{sec:distance-function} we saw that finding the unsigned distance function to an object is really solving the minimization problem \eqref{eq:unsigned-distance-function}. We also saw that the signed distance function, \signeddistance, is only an unsigned distance, $d(\mathbf{x}, \curvem)$, where it is multiplied with a negative sign on the inside of the curve. In addition, in a discretized setting, the zero level set curve is also a set of points where $\uxtm=0$ and thus similar to $d(\mathbf{x}, \pointsetm)$.
+
+For this reason, both the signed distance to the curve and the unsigned distance to the point set reduces to the same problem: solving \eqref{eq:unsigned-distance-function} for a set of points. Solving this equation is thus where we begin.
+
+The most obvious way to solve the minimization problem \eqref{eq:unsigned-distance-function} is to approach it straight forwards as it is stated: for all grid points, go through all the sample points, find the closest one and return the distance. 
+\end{comment}
+
+
+
+
+
+
+\subsection{The Fast Marching Method}
+The Fast Marching Method is a standard method for solving an equation called \textit{the Eikonal equation}. We will first show that the distance function is only a special case of the Eikonal equation and then present the idea behind the Fast Marching Method. 
+
+\begin{definition}[The Eikonal Equation]
+Assume that we are tracking an expanding front $\Gamma(t)$, expanding with a velocity $v_n(\mathbf{x}, t)$ from an initial curve $\Gamma_0$. The time of arrival, $T(\mathbf{x})$ is the time the front crosses the point $\mathbf{x}$. This function $T(\mathbf{x})$ can be found by solving the Eikonal equation \cite{sethian1999level}
+\begin{equation}
+    |\nabla T(\mathbf{x})| = \frac{1}{v_n(\mathbf{x}, t)}. 
+    \label{eq:eikonal-eq}
+\end{equation}
+\end{definition}
+Recalling $|\nabla d(\mathbf{x}, \cdot) | = 1$, we immediately see that the distance function must satisfy \eqref{eq:eikonal-eq} for a velocity $v_n=1$. It is in fact obvious that the travel time and distance traveled is identical when $v_n=1$ by the physical fact that $\texttt{time=distance/speed}$. From now on, we thus replace the time of arrival $T$ to the distance $d(\mathbf{x}, \Gamma)$ when $v_n=1$.
+
+The time of arrival at a grid point $X_{i, j}$ is uniquely defined by the time of arrival of the neighboring grid points where the front has already crossed. Thus information spreads outwards, and upwind schemes are appropriate to use. The direction of the upwinding is decided by which direction the time increases. The resulting upwind scheme \cite{sethian1999level} for solving \eqref{eq:eikonal-eq} for a speed of propagation $v_n = 1$ is
+
+\begin{equation}
+\begin{split}
+        \big[ &\max (D^{-x}_{j, i} d(\mathbf{x}, \Gamma), 0)^2 + \min (D^{+x}_{j, i} d(\mathbf{x}, \Gamma), 0)^2  \\
+    + &\max (D^{-y}_{j, i} d(\mathbf{x}, \Gamma), 0)^2 + \min (D^{+y}_{j, i} d(\mathbf{x}, \Gamma), 0)^2 \big] = 1
+    \end{split}
+    \label{eq:upwind}
+\end{equation}
+
+The operators $D^{-x}_{j, i} d(\mathbf{x}, \Gamma)$ and $D^{+x}_{j, i} d(\mathbf{x}, \Gamma)$ is the corresponding backward and forward difference operators
+\begin{equation*}
+    D^{-x}_{j, i} d(\mathbf{x}, \Gamma) = \frac{d(X_{j, i})- d(X_{j, i-1})}{h_x}, \qquad D^{+x}_{j, i} d(\mathbf{x}, \Gamma) = \frac{d(X_{j, i+1})- d(X_{j, i})}{h_x}.
+\end{equation*}
+We see that \eqref{eq:upwind} automatically chooses the direction where the derivative increases and thus ensures that information flows from small to big distances, meaning from the curve and outwards.
+
+The overall strategy is to mark all grid points with known values in a list $K$, and calculate the values in their neighboring points using the upwind scheme \eqref{eq:upwind} and store them in a data structure $T$. The list $K$ stands for \textit{known} and $T$ for \textit{trial} which must contain both the grid point and trial value. 
+
+Since all information travels from smaller to higher values, the smallest value of $T$ must be independent of all the other points in $T$, and thus it must have the correct value. Hence, the strategy is to continually move the smallest point in $T$ to $K$ and recalculate its neighbors. We summarize this in the algorithm below.
+
+\begin{algorithm}[H]
+\SetAlgoLined
+$d(X; \Gamma)=\texttt{zeros}(N,M)$\;
+$T = \texttt{Array\{ (i, j) : 0\}} \qquad$ for $(i, j) \in \Gamma$\; 
+$K = \texttt{Array \{\}}$
+
+\While{$T\neq \{ \}$}{
+    $(i, j) = \texttt{argmin}(T)$ \;
+    $u_d(i, j) = T(i, j)$ \;
+    $K \pluseq (i, j)$ \;
+    $T \minuseq (i, j)$ \;
+    $N = \texttt{neighbors}(i, j) \notin K$\;
+    \For{$(p, q) \in N$}{
+        $T \pluseq (p, q) : (\texttt{solve \eqref{eq:upwind}})$
+    }
+}
+\KwResult{$d(\mathbf{x}; \Gamma)$}
+ \caption{The Fast Marching Method for Distance Functions}
+ \label{alg:idea-fmm}
+\end{algorithm}
+
+For a rectangular grid, each grid point can at most be recalculated four times because it only has four neighbors. Thus it will have a worst-case complexity bounded by $\mathcal{O}(4 (N\times M))$, which can be significantly smaller than the complexity of Algorithm \ref{alg:direct-distance}. The fast marching method becomes increasingly superior for large point sets or equivalently increasing grid resolution when calculating the distance function to curves.
+
+There exists a python extension module named \texttt{scikit-fmm} which implements the Fast Marching Method. It is open-source, and both the code and documentation can be found on GitHub \footnote{\texttt{https://github.com/scikit-fmm/scikit-fmm}}
+
+
+%\input{chapters/implementation/imp-fmm}
+
+\clearpage

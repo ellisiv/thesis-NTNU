@@ -1,0 +1,61 @@
+\section{Sign Function, \texorpdfstring{$\sigma (\mathbf{x}, t)$}{sigma}} \label{sec:signfunction}
+The purpose of the sign function, $\sigma(\mathbf{x}, t)$ is explained in \chapref{chap:modeling}---to pull the curve towards the point set. Since positive normal-velocity is defined inwards, the sign should be positive when the curve is outside of the point set and oppositely negative when it is inside the point set. The sign function is defined in \eqref{eq:sigma-def}, but we repeat it in its discretized version.
+\begin{equation}
+    \sigma(X_{i, j}, t) = \texttt{sgn}((u(\mathbf{v}_r, t))), \quad \mathbf{v}_r = \texttt{argmin}(\|X_{i, j}- \mathbf{v}\|_2\, \forall \, v\in \pointsetm). 
+    \label{eq:sigma-function}
+\end{equation}
+We see that calculating $\sigma(X_{i, j}, t)$ numerically, in practice consists of two problems: solving a minimization problem to find the closes point in \pointset\ and calculating the sign of the higher dimensional level set function $U^n(X_{i, j})$ at the closest point. The latter may seem easy, but since the discretized $U_{i, j}^n$ is known only at the nodes on the grid, and $\mathbf{v}_r \in \pointsetm$ may be located independently of the grid, the value on $\mathbf{v}_r$ may not be given directly. The values of the higher dimensional function at the sampled points thus have to be interpolated from the neighboring grid points in general except for particular cases where the sample points are located on a node.
+
+We use bilinear interpolation to approximate the value of $U^n(\mathbf{v}_r)$ from the discretized values $U_{i, j}^n$. We can approximate the higher dimensional function $u(x, y, t)$ for a fixed $t=t^*$ on a grid cell $[x_i, x_{i+1}]\times [y_j, y_{j+1}]$ using the following formula \cite{Press2007Numerical}
+\begin{equation}
+\begin{split}
+    &u(x, y) = \\
+    &\frac{1}{(x_{i+1}-x_i)(y_{i+1}- y_i)} \begin{bmatrix} x_{i+1}- x & x - x_i \end{bmatrix} \begin{bmatrix} U_{i, j} & U_{i, j+1} \\ U_{i+1, j} & U_{i+1, j+1} \end{bmatrix} \begin{bmatrix} y_{i+1}-y \\ y-y_i \end{bmatrix}
+\end{split}
+\label{eq:bilinear-interpolation}
+\end{equation}
+
+This equation requires that the cell containing $\mathbf{v}_r$ is known. We will soon see that the closest point is easy to obtain directly in the implemented data structure, but this is not the case for the other three nodes. Hence, we will now present an algorithm that finds the three last cell nodes from the closest grid node and then approximates the higher dimensional function in the point $\mathbf{v}_r \in \pointsetm$. The procedure is to first locate the relative position of the point $\mathbf{v}_r$ compared to the closest grid point to find out in which of the four neighboring cells it is contained. Then use these four grid points to solve \eqref{alg:bilinear-interpolation} for $x$ and $y$ being the coordinates of $\mathbf{v}_r$.
+\clearpage
+
+\begin{algorithm}[H]
+\SetAlgoLined
+$i_1, j_1 = \texttt{closestPoint}(\mathbf{v}_r)$ \tcp*{Grid numbers for closest point}
+$x_1, y_1 = X[i_1, j_1]$  \tcp*{Grid values for closest point}
+$x_v, y_v = \mathbf{v}_r$  \tcp*{Coordinates of $\mathbf{v}_r$} 
+$d_1 = x_v-x_1$ \;
+$d_2 = y_v - y_1$ \;
+$x_2 = x_1$\;
+$y_2 = y_1$ \;
+\tcc{Check where $\mathbf{v}_r$ is located relatively to the closest point}
+\If{$d_1 > 0$}{
+    $i_2 = i_1 + 1$ \;
+}
+\ElseIf{$d_1<0$}{
+    $i_2 = i_1 - 1$ \;
+}
+\If{$d_2 > 0$}{
+    $j_2 = j_1 + 1$ \;
+}
+\ElseIf{$d_2<0$}{
+    $j_2 = j_1 - 1$ \;
+}
+\tcc{Define the four points needed for bilinear interpolation}
+$U_1 = U[j_1, i_1]$ \;
+$U_2 = U_[j_1, i_2]$ \;
+$U_3 = U_[j_2, i_1]$ \;
+$U_4 = U_[j_2, i_2]$ \;
+
+\tcc{Solve \eqref{eq:bilinear-interpolation}}
+$\mathbf{b}_1 = [h_x - \texttt{abs}(d_1), \texttt{abs}(d_1)]$ \;
+$A = [[U_1, U_2], [U_3, U_4]]$ \;
+$\mathbf{b}_2 = [h_y - \texttt{abs}(d_2), \texttt{abs}(d_2)]$ \;
+
+$u(x_v, y_v) = \frac{1}{h_x h_y} \mathbf{b}_1 A \,\textbf{b}_2^T$ \;
+\KwResult{$u(x_v, y_v)$}
+
+ \caption{Bilinear Interpolation from Closest Grid Point}
+ \label{alg:bilinear-interpolation}
+\end{algorithm}
+
+\clearpage

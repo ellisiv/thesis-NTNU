@@ -1,0 +1,134 @@
+\section{Gradient Flow and Derivatives of Domain Integrals} \label{sec:shape-derivatives}
+The motivation behind this section is to introduce \textit{gradient flow}, an optimization strategy which will be used to model the general level set equation \eqref{eq:general-level-set} for our situation. We will also see that the gradient flow equation applied to our level set method will rely on transformations produced by velocity fields and their corresponding derivatives. We will thus briefly go through the background and present a useful result concerning derivatives of domain integrals.
+
+We ease into this subject by explaining the concept of gradient flow and how this is related to the level set equation. We remember the level set equation $u_t - v_n|\nabla u|=0$, where the normal speed $v_n$ was the given speed of the zero level set curve. We now want to derive such a speed function to obtain a curve as formulated in the objective of this thesis---a curve with low curvature that approximates a set of sampled points. The velocity field should hence have a normal component that deforms an initial curve gradually until we reach a stationary situation where the objective is fulfilled. In order to construct such a velocity, we must mathematically define our objectives. When we then define the desirable properties as measurable quantities, we can use optimization to find an optimal solution.
+
+We approach this inspired by physics, introducing an energy functional measuring the potential energy of our curve through some properties we want to minimize. Using still the notation from \secref{sec:levelset-methods}, $\Omega(t)$ denotes the area bounded by our curve, \curve. We denote a general energy function for a curve as
+\begin{equation}
+    E(\Omega(t)) = \int_{\Omega(t)}f(\mathbf{x}) \diff \Omega + \int_{\partial \Omega(t)} g(\mathbf{x})\diff S,
+    \label{eq:general-energy}
+\end{equation}
+where $f$ and $g$ are the measurable quantities of the curve which we want to control.
+
+If we still follow the physical way of thinking, the natural state will minimize the potential energy field and if not affected by other forces, this state will be stationary. A flow in a potential energy field will always move in the direction of fastest falling potential energy and the same idea holds for gradient flow. 
+
+Gradient flow is a continuous version of the well known gradient descent method also known as the steepest descent method. For an optimization problem on the form $\mathbf{x}^* = \argmin_{\mathbf{x}}h(\mathbf{x})$ given an initial guess $\mathbf{x_0}$, where $\mathbf{x}^* \in \realspacem^d$, we improve the solution by following the motion in negative gradient direction, $\mathbf{x}_t = - \nabla h(\mathbf{x})$.
+
+We go back to our energy function $E(\Omega)$. We want to decrease the energy functional by deforming the domain, and that leads to a change in the integration domain $\Omega$. Thus, unlike $h(\mathbf{x})$, the input is not a coordinate in $\realspacem^d$, but a domain of integration $\Omega\subset \realspacem^d$. We thus need to formulate how the energy changes when $\Omega$ is deformed in order to choose the optimal deformation to minimize the energy. We define this change as the derivative of $E$ and denote it $\diff E(\Omega)$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.7\linewidth]{figures/tikz-figures/shape-derivative.tex}
+    \caption[Shape transformation by velocity field]{A transformation $T_t$ of a domain $\Omega_0\to\Omega_t$ by flowing in a velocity field $\vv{v}$ over a time $t$. The function $x(t; \mathbf{X})$ describes the path of a material point $\mathbf{X}$ moving in the velocity field.}
+    \label{fig:shape-transformation}
+\end{figure}
+
+Given a domain $\Omega$ which is assumed to be a bounded, open set in $\realspacem^d$ with a boundary $\Gamma = \partial \Omega\in\realspacem^{d-1}$. A change in the domain into some $\Omega_t$ can be described by a transformation $T_t(\Omega) = \Omega_t$. The velocity method is about describing the domain as a continuum of points where all points are flowing in a velocity field, $\vv{v}$,which perturbs the shape of the domain. Look at \figref{fig:shape-transformation} for reference.
+
+We consider a material point $\mathbf{X}$\todo{Må jeg forklare mat-point?}, moving under the influence of a velocity field $\vv{v}(x, t)$. The trajectory of the material point, $\mathbf{X}$, in Eulerian coordinates is denoted $x(t; \mathbf{X})$, and will follow the velocity field $\vv{v}(x, t)$. From this, we get the differential equation for the movement of the material points
+\begin{equation*}
+    \frac{\diff x}{\diff t} (\mathbf{X}, t) = \vv{v}(x(t; \mathbf{X}), t), \quad x(t; \mathbf{X})=\mathbf{X}, \quad t \geq 0.
+\end{equation*}
+
+The transformation, $T_t$, thus moves the material points along their trajectories given by the velocity field, which mathematically can be formulated as
+\begin{equation}
+    \mathbf{X} \mapsto T_t(\mathbf{X}; \vv{v}) = x(t; \mathbf{X}).
+    \label{eq:euler-lagrange}
+\end{equation}
+
+For the domain $\Omega$, the transformation moves all material points in $\Omega$ along their respective trajectories. The time $t$ in the transformation, $T_t$, represents how long we move along the trajectories. This means that $T_0(\Omega) = \Omega$, or in other words, $T_0 = I$. When $t\neq 0$, the total shape transformation of $\Omega_0$ along a velocity field, $\vv{v}$, is denoted as follows
+\begin{equation}
+    \Omega_t(\vv{v}) = T_t(\vv{v})(\Omega_0) = \{T_t(\mathbf{X}; \vv{v}), \quad \forall \, \mathbf{X} \in \Omega_0 \} .
+    \label{eq:tot-shape-trans}
+\end{equation}
+
+We have now introduced the notation we need to introduce derivatives of domain integrals. The following proposition and the proof can be found in a more general version in the book "Introduction to Shape Optimization" by J. Sokolowski and J. Zolesio \cite{zolesio-MR1215733}. 
+
+\begin{proposition}
+Let $\Omega(t)$ be a smooth domain in $\realspacem^2$ bounded by the boundary curve $\Gamma$. Define the functions $f(\mathbf{x})\in W^{1, 1}(\realspacem^2)$ and $g(\mathbf{x})\in W^{2, 1}(\realspacem^2)$ not dependent on the domain of integration, $\Omega(t)$. Define the functions $J_1$ and $J_2$:
+\begin{align*}
+    J_1(\Omega(t)) &= \int_{\Omega(t)} f(\mathbf{X}) \diff \Omega \\
+    J_2(\Omega(t)) &= \int_{\Gamma(t)} g(\mathbf{X}) \diff S(\Gamma).
+\end{align*}
+Let the the velocity field $\vv{v}$ be continuous. The derivatives of $J_1$ and $J_2$ with respect to the integration domain at a fixed time $t=t^*$ is then
+
+\begin{align}
+    \diff J_1(\Omega(t^*)) &= \int_{\Gamma(t^*)}f(\mathbf{X}) (\vv{v}(t^*)\cdot \vv{n}) \diff \Gamma, \label{eq:J1-der}\\
+    \diff J_2(\Omega(t^*)) &= \int_{\Gamma(t^*)} \big(\frac{\partial}{\partial \vv{n}}g(\mathbf{X}) + \kappa g(\mathbf{X}) ) (\vv{v}(t^*)\cdot \vv{n} \big) \diff S(\Gamma). \label{eq:J2-der}
+\end{align}
+\label{prop:shape-derivative}
+\end{proposition}
+
+Now, returning to gradient flow, we need to find the direction of $\vv{v}(t)$ from Proposition \ref{prop:shape-derivative} that maximizes $dE(\Omega)$ and move in the opposite direction. Since the gradient is dependent on the inner product $\vv{v}(t)\cdot \vv{n}$, the direction of maximal derivative is when $\vv{v}(t)$ parallel to $\vv{n}$. For our general energy function $E(\Omega)$ this means that the curve velocity $\Gamma_t$ following gradient flow will have speed
+\begin{equation}
+    \Gamma_t = -v_n \vv{n}_{\Gamma} = -(f(\mathbf{x}) + g(\mathbf{x})) \vv{n}_{\Gamma}.
+    \label{eq:optimal-descent}
+\end{equation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{comment}
+\begin{proposition}
+Let $\Omega$ be a smooth domain in $\realspacem^2$ bounded by the boundary curve $\Gamma$. Define the functions $f(\Omega)\in W^{1, 1}(\realspacem^2)$ and $g\in W^{1, 1}(\realspacem^2)$. Define the functions $J_1$ and $J_2$:
+\begin{align*}
+    J_1(\Omega) &= \int_{\Omega} f(\Omega) \diff x \\
+    J_2(\Omega) &= \int_{\Gamma} g(\Omega) \diff S(\Gamma).
+\end{align*}
+Let the the velocity field $\vv{V}$ be continuous. The derivatives of $J_1$ and $J_2$ with respect to the integration domain is then
+
+\begin{align}
+    J_1'(\Omega) &= \int_{\Omega}f'(\Omega; \vv{V})\diff x + \int_{\Gamma}f(\Omega) (\vv{V}(0)\cdot \vv{n}) \diff \Gamma \label{eq:J1-der}\\
+    J_2'(\Omega) &= \int_{\Gamma} g'(\Omega; \vv{V})|_{\Gamma}\diff S(\Gamma) + \int_{\Gamma} \big(\frac{\partial}{\partial \vv{n}}g(\Omega) + \kappa g(\Omega) ) (\vv{V}(0)\cdot \vv{n} \big) \diff S(\Gamma) \label{eq:J2-der}
+\end{align}
+where $f'(\Omega; \vv{V})$ and $g'(\Omega; \vv{V})$ are the shape derivatives of $f$ and $g$ \cite{zolesio-MR1215733}.
+\label{prop:shape-derivative}
+\end{proposition}
+\begin{proof}
+The proof relies on the theory of shape derivatives and for a full proof we refer to \cite{zolesio-MR1215733}. We can nevertheless present the idea given the defined notation.
+
+Using the definition of the derivative, we can write $J_1'(\Omega)$ as
+\begin{align*}
+    J_1'(\Omega) &= \lim_{t\downarrow 0} \frac{J_1(\Omega_t)-J_1(\Omega)}{t} \\
+    &=\lim_{t\downarrow 0} \frac{\int_{\Omega_t} f(\Omega_t) \diff x-\int_{\Omega} f(\Omega) \diff x}{t}.
+\end{align*}
+
+
+We use \eqref{eq:euler-lagrange} to do a change of variable to express the integral over $\Omega_t$ in terms of $\Omega$. We write $x=T_t(\vv{V})(\mathbf{X})$ and use the substitution rule to obtain
+\begin{equation*}
+    J_1(\Omega_t) = \int_{\Omega} \text{det}(D T_t)f(T_t(\Omega)) \diff x,
+\end{equation*}
+where $DT_t$ is the Jacobian matrix of the transformation $T_t(\vv{V})$. We also express $\Omega$ as $\Omega_t|_{t=0}$ and for $T_t|_{t=0}$, the transformation is only the identity mapping. It can also be shown that $\text{det}(D T_0) = \nabla \cdot \vv{V}(0)$ \cite{zolesio-MR1215733}.
+\begin{equation*}
+    J_1'(\Omega) = \lim_{t\downarrow 0} \frac{\int_{\Omega} \text{det}(D T_t)f(T_t(\Omega)) \diff x-\int_{\Omega} \nabla \cdot \vv{V}(0)f(\Omega_t)\diff x}{t}.
+\end{equation*}
+Given a continuous transformation $T_t$ with a differentiable Jacobian, $\text{det}(DT_t)$, it can be shown that this is equal to \cite{zolesio-MR1215733}
+
+\begin{equation*}
+    J_1'(\Omega; \vv{V}) = \int_{\Omega} f'(\Omega; \vv{V}) \diff x +\int_{\Omega} \nabla \cdot (f(\Omega)\vv{V}(0) ) \diff x.
+\end{equation*}
+Using the divergence theorem on the last term, yields \eqref{eq:J1-der}.
+
+The proof of \eqref{eq:J2-der} is performed in a similar manner, doing a change of variables and using a substitution rule. However, it demands some new definitions and concepts, so we do not recite it here.
+
+
+For the integral function $J_2$, we similarly write
+\begin{align*}
+    J_2'(\Omega) &= \lim_{t\downarrow 0} \frac{J_2(\Omega_t)-J_2(\Omega)}{t} \\
+    &= \lim_{t\downarrow 0} \frac{\int_{\Gamma_t}g(\Gamma_t) \diff \Gamma-\int_{\Gamma} g(\Gamma) \diff \Gamma}{t}.
+\end{align*}
+Again we perform the change of variable $x=T_t(\vv{V})(\mathbf{X})$. For a proof of the next equation, we refer to Proposition 2.47 in \cite{zolesio-MR1215733}.
+
+\begin{equation*}
+    J_2(\Omega) = \int_{\Gamma}g(\Gamma_t)\circ T_t \omega(t) \diff \Gama.
+\end{equation*}
+
+
+Now we have the tools we need in order to minimize the energy function $E(\Omega)$ using gradient flow. Then we can move on to the modeling aspect of this thesis.
+    
+\end{proof}
+
+\end{comment}
+
+
+\clearpage

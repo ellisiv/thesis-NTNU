@@ -1,0 +1,44 @@
+\subsection*{Stationary solutions}
+We now want to examine stationary solutions for \eqref{eq:zero-levelset-polar-coords}. In the context of level set methods, the stationary solution is obtained when the zero level curve is stationary. See for example in \figref{fig:total-streamline-picture} that when the zero level curve converges, the iso-curves above a certain value diverges. The stationary zero level curve can be obtained by finding the minima of $E(\Omega)$ or in the radially symmetric situation---finding $r_f = \lim_{t\to\infty} r(t)$ given an initial radius, $r_0$ or in other words when $r_t=0$ in \eqref{eq:pde-zero-streamline}.
+
+We can observe in \figref{fig:radius-characteristics} that the stationary radius, $r_f$ for the zero level curve depends on the weighting $\alpha$, when $\alpha$ increased, the stationary radius was much closer to the radius of the point set. We will now find the exact relation.
+
+We set $r_t$ in \eqref{eq:pde-zero-streamline} equal zero and denote the radius where this is fulfilled as $r_f$. We solve for $r_f$ and obtain  
+\begin{equation}
+    0 = \alpha (r_f-r_v) + \frac{1-\alpha}{r_f}.
+    \label{eq:steady-state-circle}
+\end{equation}
+
+We multiply \eqref{eq:steady-state-circle} with $r_f/\alpha$ and obtain a quadratic equation
+\begin{equation*}
+    r_f^2-r_v\, r_f+ \frac{1-\alpha}{\alpha} = 0,
+\end{equation*}
+which has the solution
+\begin{equation}
+    r_f = \frac{r_v}{2} \pm \frac{\sqrt{r_v^2-4 (1-\alpha)/\alpha}}{2}.
+    \label{eq:stationary-radius}
+\end{equation}
+
+First of all, we see that with $\alpha=1$, $r_f=r_v$. Setting $\alpha=1$ is equal to a velocity field that is only distance dependent, and then it is as we expect that the curve ends up covering the point set, unaffected by curvature. We also see immediately that there are two solutions, meaning two stationary radii, which is located at both sides of $r=r_v/2$. This is also what we observe in \figref{fig:radius-characteristics}. Note also that only one of the stationary solutions, namely the outermost of the two, is stable, and that the innermost is only the point where the curvature exceeds the distance function and pulls it inwards to zero radius. \todo{Bevis påstand om ustabil indre løsning}
+
+What we also get from \eqref{eq:stationary-radius} is that we can find the minimal $\alpha$ for which we can obtain a stationary solution at all. When 
+\begin{equation*}
+    r_v^2 < \frac{4(1-\alpha)}{\alpha},
+\end{equation*}
+there will be no real solution to \eqref{eq:stationary-radius}. Solving for $\alpha$ gives a restriction for the weighting parameter being
+\begin{equation}
+    \alpha \geq \frac{4}{r_v^2 + 4}.
+    \label{eq:weighting-restriction}
+\end{equation}
+
+When $\alpha$ does not fulfill \eqref{eq:weighting-restriction}, the zero level curve will have a velocity driven mostly by the curvature and with constant direction inwards, which will drive the radius smaller and smaller until the circle disappears.
+
+An important result, which we take from this analysis is that when \\ $\alpha<1$, which means whenever the curvature also influences the motion, the stationary solution for the curve will always be inside the point set for a dense circle. The distance is given by $d(r_f) = |r_f-r_v|$ and inserting $r_f$ from \eqref{eq:stationary-radius}. This can also be observed directly from our velocity function \eqref{eq:general-normal-velocity}, because when the curve covers our point set, the distance function is zero, but $\kappa(r) = 1/r_v\neq 0$, which means that the curve still has speed inwards. 
+
+The stationary solution is thus the point where the distance and curvature is balanced, meaning that the stationary solution is not bound to cover the point set nor ensure zero curvature at the stationary solution. Thus we do not minimize both the curvature and distance, but we get a weighting of the two. We thus get a curve that will have low curvature close to the point set and high curvature far away.
+
+
+
+% NB When I tested for a = 0.96, rv=0.5 I got r=0.3757 in stead of 0.4!! This was for h=1/100
+
+
